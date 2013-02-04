@@ -121,6 +121,7 @@ public class MarketAgent extends Agent {
 			cook.cook.msgIHaveNoFood();
 			cook.status = CookStatus.nothing;
 		}
+		
 		else {
 			List<String> choices = new List<String>();
 			List<int> amounts = new List<int>();

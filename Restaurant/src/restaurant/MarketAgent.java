@@ -2,7 +2,7 @@ package restaurant;
 
 import agent.Agent;
 import java.util.*;
-import cookAgent.FoodData;
+import CookAgent.FoodData;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION

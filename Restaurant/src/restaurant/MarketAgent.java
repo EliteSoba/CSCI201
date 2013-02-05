@@ -2,7 +2,7 @@ package restaurant;
 
 import agent.Agent;
 import java.util.*;
-import CookAgent.FoodData;
+import restaurant.CookAgent.FoodData;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -23,7 +23,7 @@ public class MarketAgent extends Agent {
 		public MyCook() {
 			cook = null;
 			status = CookStatus.nothing;
-			currentOrder = new List<FoodData>();
+			currentOrder = new ArrayList<FoodData>();
 			currentCost = 0;
 		}
 	}
@@ -41,7 +41,7 @@ public class MarketAgent extends Agent {
 	super();
 	this.name = name;
 	cook = new MyCook();
-	inventory = new Map<String, FoodData>;
+	inventory = new HashMap<String, FoodData>();
 	
     }
 
@@ -68,17 +68,19 @@ public class MarketAgent extends Agent {
 	 * 
 	*/
 	public void msgTakeMyMoney(CashierAgent cashier, double price) {
-		cook.status = CookState.paid;
+		cook.status = CookStatus.paid;
+		if (price == 0) //If they pay nothing, they get nothing. A small hack.
+			this.cook.currentOrder = new ArrayList<FoodData>();
 	}
 
     /** Scheduler.  Determine what action is called for, and do it. */
     protected boolean pickAndExecuteAnAction() {
 	
-	if (cook.status = CookState.ordering) {
+	if (cook.status == CookStatus.ordering) {
 		DoCalculateOrder();
 		return true;
 	}
-	if (cook.status = CookState.paid) {
+	if (cook.status == CookStatus.paid) {
 		DoFulfilOrder();
 		return true;
 	}
@@ -101,7 +103,7 @@ public class MarketAgent extends Agent {
 				o.amount = 0;
 			}
 			else if (o.amount > inventory.get(o.type).amount) {
-				o.amount = inventory.get(o.type).amount)
+				o.amount = inventory.get(o.type).amount);
 				if (o.amount > 0)
 					outOfStock = false;
 			}
@@ -113,7 +115,7 @@ public class MarketAgent extends Agent {
 		}
 		
 		else {
-			cook.cook.msgHereIsPrice(DoCalculatePrice(cook.currentOrder), currentOrder);
+			cook.cook.msgHereIsPrice(DoCalculatePrice(cook.currentOrder), cook.currentOrder);
 			cook.status = CookStatus.paying;
 		}
     }
@@ -124,7 +126,7 @@ public class MarketAgent extends Agent {
     private void DoFulfilOrder() {
     	cook.status = CookStatus.nothing;
 		
-    	cook.cook.TakeMyFood(currentOrder);
+    	cook.cook.TakeMyFood(cook.currentOrder);
     }
 
     // *** EXTRA ***

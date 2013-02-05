@@ -2,7 +2,7 @@ package restaurant;
 
 import agent.Agent;
 import java.util.*;
-import CookAgent.FoodData;
+import restaurant.CookAgent.FoodData;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -18,7 +18,8 @@ public class CashierAgent extends Agent {
 		public WaiterAgent waiter; //The waiter in charge of the customer
 		public CustomerAgent customer;
 		public String choice;
-		public CustomerState state = paying;
+		public CustomerState state = CustomerState.paying;
+		double money;
 		
 		public MyCustomer(WaiterAgent w, CustomerAgent c, String ch) {
 			waiter = w;
@@ -54,14 +55,14 @@ public class CashierAgent extends Agent {
     
     List<Order> cookOrders;
 
-    /** Constructor for MarketAgent class 
+    /** Constructor for CashierAgent class 
      * @param name name of the market */
-    public MarketAgent(String name) {
+    public CashierAgent(String name) {
 	super();
 	this.name = name;
 	funds = 100000;
 	kidneys = 0;
-	cookOrders = new List<Order>();
+	cookOrders = new ArrayList<Order>();
     }
 
     // *** MESSAGES ***
@@ -79,35 +80,35 @@ public class CashierAgent extends Agent {
     	customers.get(customers.indexOf(customer)).state = CustomerState.poor;
     }
     
-    public void msgBuyMeFood(List<FoodData> food, Market market, int cost) {
-    	cookOrers.add(new Order(food, market, cost));
+    public void msgBuyMeFood(List<FoodData> food, MarketAgent market, int cost) {
+    	cookOrders.add(new Order(food, market, cost));
     }
 
     /** Scheduler.  Determine what action is called for, and do it. */
     protected boolean pickAndExecuteAnAction() {
 	
 	for (MyCustomer c:customers) {
-		if (c.state = CustomerState.paying) {
+		if (c.state == CustomerState.paying) {
 			DoCalculateBill(c);
 			return true;
 		}
 	}
 
 	for (MyCustomer c:customers) {
-		if (c.state = CustomerState.awaitingChange) {
+		if (c.state == CustomerState.awaitingChange) {
 				DoCalculateChange(c);
 				return true;
 		}
 	}
 
 	for (MyCustomer c:customers) {
-		if (c.state = CustomerState.poor) {
+		if (c.state == CustomerState.poor) {
 			DoTakeKidney(c);
 			return true;
 		}
 	}
 			
-	for (Orders o:cookOrders) {
+	for (Order o:cookOrders) {
 			DoProcessOrder(o);
 			return true;
 		}
@@ -120,8 +121,8 @@ public class CashierAgent extends Agent {
     
     // *** ACTIONS ***
     
-    private void doCalculateBill(MyCustomer customer) {
-    	int bill = DoCalculatePrice(customer.choice);
+    private void DoCalculateBill(MyCustomer customer) {
+    	double bill = DoCalculatePrice(customer.choice);
 		customer.waiter.msgHereIsBill(customer.customer, bill);
 		customer.state = CustomerState.paid;
     }
@@ -139,14 +140,14 @@ public class CashierAgent extends Agent {
 		customers.remove(customer);
 	}
 
-	private void DoProcessOrders(Order order) {
+	private void DoProcessOrder(Order order) {
 		if (order.cost > funds) {//If too expensive, orders nothing. If desired, an algorithm to remove certain foods from the order could be used
-			order.market.msgTakeMyMoney(this, 0, new List<FoodData>());
-			orders.remove(order);
+			order.market.msgTakeMyMoney(this, 0);
+			cookOrders.remove(order);
 		}
 		else {
 			order.market.msgTakeMyMoney(this, order.cost, order.food);
-			orders.remove(order);
+			cookOrders.remove(order);
 		}
 	}
 

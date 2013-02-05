@@ -41,17 +41,20 @@ public class CookAgent extends Agent {
 	inventory.put("Pizza",new FoodData("Pizza", 3));
 	inventory.put("Salad",new FoodData("Salad", 2));
     }
-    /** Private class to store information about food.
-     *  Contains the food type, its cooking time, and ...
+    /** Public class to store information about food.
+     *  Contains the food type, its cooking time, and amount in inventory
+     *  public to share with cashier and market when passing it back and forth.
      */
-    private class FoodData {
+    public class FoodData {
 	String type; //kind of food
 	double cookTime;
+	int amount;
 	// other things ...
 	
 	public FoodData(String type, double cookTime){
 	    this.type = type;
 	    this.cookTime = cookTime;
+	    amount = 10;
 	}
     }
     /** Private class to store order information.

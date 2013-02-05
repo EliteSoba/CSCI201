@@ -2,6 +2,7 @@ package restaurant;
 
 import agent.Agent;
 import java.util.*;
+import cookAgent.FoodData;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -28,17 +29,6 @@ public class MarketAgent extends Agent {
 	}
 	public enum CookStatus {nothing, ordering, paying, paid};
 	private MyCook cook;
-
-	/** Private class to hold food information*/
-	private class FoodData { //In the design documentation, we have this as the same class as the CookAgent, but apparently you can't just pass that, so I need to pass primitives and convert it. Sadness.
-		public String type;
-		public int amount;
-		
-		public FoodData(String t, int a) {
-			type = t;
-			amount = a;
-		}
-	}
 	
 	Map<String, FoodData> inventory;
 
@@ -62,10 +52,10 @@ public class MarketAgent extends Agent {
      * @param choices the list of names of foods
      * @param amounts the list of amounts of foods
     */
-	public void msgINeedFood(CookAgent cook, List<String> choices, List<int> amounts) {
+	public void msgINeedFood(CookAgent cook, List<FoodData> currentOrder) {
 		this.cook.cook = cook;
-		for (int i = 0; i < choices.size(); i++) {
-			this.cook.currentOrder.add(new FoodData(choices.get(i), amounts.get(i)));
+		for (int i = 0; i < currentOrder.size(); i++) {
+			this.cook.currentOrder.add(currentOrder.get(i));
 		}
 		stateChanged();
 	}
@@ -123,13 +113,7 @@ public class MarketAgent extends Agent {
 		}
 		
 		else {
-			List<String> choices = new List<String>();
-			List<int> amounts = new List<int>();
-			for (FoodData o:cook.currentOrder) {
-				choices.add(o.type);
-				amounts.add(o.amount);
-			}
-			cook.cook.msgHereIsPrice(DoCalculatePrice(cook.currentOrder), choices, amounts);
+			cook.cook.msgHereIsPrice(DoCalculatePrice(cook.currentOrder), currentOrder);
 			cook.status = CookStatus.paying;
 		}
     }
@@ -139,15 +123,8 @@ public class MarketAgent extends Agent {
     */
     private void DoFulfilOrder() {
     	cook.status = CookStatus.nothing;
-    	
-    	List<String> choices = new List<String>();
-		List<int> amounts = new List<int>();
-		for (FoodData o:cook.currentOrder) {
-			choices.add(o.type);
-			amounts.add(o.amount);
-		}
 		
-    	cook.cook.TakeMyFood();
+    	cook.cook.TakeMyFood(currentOrder);
     }
 
     // *** EXTRA ***

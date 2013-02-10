@@ -1,0 +1,49 @@
+Customer Messages
+
+public void setHungry() {
+	events.add(gotHungry)
+	isHungry = true
+}
+
+msgFollowMeToTable(Waiter waiter, Menu menu) {
+	menu = menu
+	waiter = waiter
+	events.add(beingSeated)
+}
+
+msgDecided() {
+	events.add(decidedChoice)
+}
+
+msgWhatWouldYouLike() {
+	events.add(waiterToTakeOrder)
+}
+
+msgHereIsYourFood(String choice) {
+	events.add(foodDelivered)
+}
+
+msgDoneEating() {
+	events.add(doneEating)
+}
+
+msgHereIsBill(int bill) {
+	bill = bill
+	if (bill > money)
+		events.add(gotUnpayableBill)
+	else
+		events.add(gotBill)
+}
+
+msgTakeYourChange(int change) {
+	events.add(gotChange)
+}
+
+removeKidney() {
+	events.add(lostKidney)
+}
+
+msgOrderAgain(Menu menu) {
+	menu = menu
+	events.add(pleaseReorder)
+}

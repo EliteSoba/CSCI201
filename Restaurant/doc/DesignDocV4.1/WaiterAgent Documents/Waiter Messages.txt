@@ -1,0 +1,60 @@
+Waiter Messages
+
+msgSitCustomerAtTable(Customer customer, int table) {
+	MyCustomer c = new MyCustomer(customer, table, new Menu())
+	c.state = NEED_SEATED
+	customers.add(c)
+}
+
+msgImReadyToOrder(Customer customer) {
+	customers.get(customer).state = READY_TO_ORDER
+}
+
+msgHereIsMyChoice(Customer customer, String choice) {
+	customers.get(customer).choice = choice
+	customers.get(customer).state = ORDER_PENDING
+}
+
+msgOrderIsReady(int table, Food f) { //Food is GUI
+	if (exists c in customer such that c.table = table) {
+		c.state = ORDER_READY
+	}
+}
+
+msgLeaving(Customer customer, int tip) {//I LIKE TIPS
+	customers.get(customer).state = IS_DONE
+	tipMoney += tip
+}
+
+msgDoneEating() {
+	customers.get(customer).state = PAYING
+}
+
+msgHereIsBill(Customer c, int bill) {
+	customers.get(customer).state = BILL_ARRIVED
+	customers.get(customer).bill = bill
+}
+
+goOnBreak() {
+	breakstate = breakRequested
+}
+
+msgBreakApproved() {
+	breakstate = onBreak
+}
+
+msgBreakDenied() {
+	breakstate = working
+}
+
+msgCustomerPaidWithBody(Customer customer) {
+	customers.get(customer).state = IS_DONE
+}
+
+msgOutOfStock(Customer customer) {
+	customers.get(customer.state = NEEDS_REORDER //OutOfStock food is implied to be what the customer ordered
+}
+
+msgBreakTimesOver() {
+	breakstate = working
+}

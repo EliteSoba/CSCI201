@@ -1,0 +1,21 @@
+Customer Data
+
+String name
+int hungerLevel
+int money
+int bill = 0
+int kidneys = 2
+boolean isLawbreaker = false //Turn on true if you want customer to order food he can't afford
+
+Host host
+Waiter waiter
+Restaurant restaurant
+Cashier cashier
+Menu menu
+
+//GUI STUFF HERE
+
+boolean isHungry = false
+enum AgentState = {DoingNothing, WaitingInRestaurant, SeatedWithMenu, WaiterCalled, WaitingForFood, Eating, Paying}
+enum AgentEvent = {gotHungry, beingSeated, decidedChoice, waiterToTakeOrder, foodDelivered, doneEating, gotUnpayableBill, gotBill, gotChange, lostKidney, pleaseReorder}
+List<AgentEvent> events

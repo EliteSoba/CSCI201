@@ -1,0 +1,13 @@
+Cashier Scheduler
+
+if (exists c in customers such that c.state = paying)
+	DoCalculateBill(c)
+
+if (exists c in customers such that c.state = awaitingChange)
+	DoCalculateChange(c)
+
+if (exists c in customers such that c.state = poor)
+	DoTakeKidney(c)
+
+if (exists o in cookOrders)
+	DoProcessOrder(o)

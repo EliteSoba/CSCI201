@@ -1,0 +1,7 @@
+Market Scheduler
+
+if (cook.status = ordering)
+	DoCalculateOrder()
+
+if (cook.status = paid)
+	DoFulfilOrder()

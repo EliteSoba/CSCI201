@@ -1,0 +1,63 @@
+Customer Scheduler
+
+if (state = DoingNothing) {
+	if (event = gotHungry) {
+		goingToRestaurant()
+		state = WaitingInRestaurant
+	}
+}
+
+if (state = WaitingInRestaurant) {
+	if (event = beingSeated) {
+		makeMenuChoice()
+		state = SeatedWithMenu
+	}
+}
+
+if (state = SeatedWithMenu) {
+	if (event = decidedChoice) {
+		callWaiter()
+		state = WaiterCalled
+	}
+}
+
+if (state = WaiterCalled) {
+	if (event = waiterToTakeOrder) {
+		orderFood()
+		state = WaitingForFood
+	}
+}
+
+if (state = WaitingForFood) {
+	if (event = foodDelivered) {
+		eatFood()
+		state = Eating
+	}
+	else if (event = pleaseReorder) {
+		doReorderFood()
+	}
+}
+
+if (state = Eating) {
+	if (event = doneEating) {
+		doneEating()
+		state = Paying
+	}
+}
+
+if (state = Paying) {
+	if (event = gotUnpayableBill) {
+		doICantPay()
+	}
+	else if (event = gotBill) {
+		doPayBill()
+	}
+	else if (event = gotChange) {
+		leaveRestaurant()
+		state = DoingNothing
+	}
+	else if (event = lostKidney) {
+		doLoseKidney()
+		state = DoingNothing
+	}
+}

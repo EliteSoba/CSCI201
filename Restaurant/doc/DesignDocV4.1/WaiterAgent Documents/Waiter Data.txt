@@ -1,0 +1,27 @@
+Waiter Data
+
+BreakState breakstate = working
+
+enum BreakState = {working, breakRequested, breakPending, onBreak}
+
+enum CustomerState = {NEED_SEATED, READY_TO_ORDER, ORDER_PENDING, ORDER_READY, NEEDS_REORDER, IS_DONE, PAYING, BILL_ARRIVED, NO_ACTION}
+
+class MyCustomer {
+	CustomerState state
+	Customer customer
+	String choice
+	Menu menu
+	int table
+	int bill = 0
+}
+
+String name
+int tipMoney = 0
+
+List<MyCustomer> customers
+
+Host host
+Cook cook
+Cashier cashier
+
+//GUI STUFF

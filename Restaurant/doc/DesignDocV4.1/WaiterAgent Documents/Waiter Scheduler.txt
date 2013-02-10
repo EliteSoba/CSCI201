@@ -1,0 +1,32 @@
+Waiter Scheduler
+
+if (breakstate = breakRequested) {
+	doRequestBreak()
+}
+
+if (exists c in customers such that c.state = NEEDS_REORDER)
+	doRequestReorder(c)
+
+if (exists c in customers such that c.state = ORDER_READY)
+	giveFoodToCustomer(c)
+
+if (exists c in customers such that c.state = IS_DONE)
+	clearTable(c)
+
+if (exists c in customers such that c.state = NEED_SEATED)
+	seatCustomer(c)
+
+if (exists c in customers such that c.state = ORDER_PENDING)
+	giveOrderToCook(c)
+
+if (exists c in customers such that c.state = READY_TO_ORDER)
+	takeOrder(c)
+
+if (exists c in customers such that c.state = PAYING)
+	getBill(c)
+
+if (exists c in customers such that c.state = BILL_ARRIVED)
+	giveBill(c)
+
+if (breakstate = onBreak && customers.isEmpty())
+	goOnBreak()

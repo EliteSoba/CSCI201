@@ -1,0 +1,53 @@
+Waiter Actions
+
+//Most of these will have GUI actions that are omitted
+seatCustomer(MyCustomer customer) {
+	customer.state = NO_ACTION
+	customer.customer.msgFollowMeToTable(this, customer.menu)
+}
+
+takeOrder(MyCustomer customer) {
+	customer.state = NO_ACTION
+	customer.customer.msgWhatWouldYouLike()
+}
+
+giveOrderToCook(MyCustomer customer) {
+	customer.state = NO_ACTION
+	cook.msgHereIsAnOrder(this, customer.table, customer.choice)
+}
+
+giveFoodToCustomer(MyCustomer customer) {
+	customer.state = NO_ACTION
+	customer.customer.msgHereIsYourFood(customer.choice)
+}
+
+clearTable(MyCustomer customer) {
+	customer.state = NO_ACTION
+	//GUI
+	host.msgTableIsFree(customer.table)
+	customers.remove(customer)
+}
+
+getBill(MyCustomer customer) {
+	cashier.msgCustomerDone(customer.customer, customer.choice)
+	customer.state = NO_ACTION
+}
+
+giveBill(MyCustomer customer) {
+	customer.customer.msgHereIsBill(customer.bill)
+	customer.state = NO_ACTION
+}
+
+doRequestBreak() {
+	host.msgIWantABreak(this)
+	breakstate = breakPending
+}
+
+goOnBreak() {
+	host.msgImOnBreakNow(this)
+}
+
+doRequestReorder(MyCustomer customer) {
+	customer.msgOrderAgain(customer.menu - customer.choice) //Returns a menu without what the customer ordered
+	customer.state = NO_ACTION
+}

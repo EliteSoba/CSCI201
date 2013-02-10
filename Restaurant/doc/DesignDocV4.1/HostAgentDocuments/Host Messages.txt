@@ -1,0 +1,22 @@
+Host Messages
+
+msgIWantToEat(Customer customer) {
+	waitList.add(customer)
+}
+
+msgTableIsFree(int tablenum) {
+	tables[tableNum].occupied = false
+}
+
+
+msgIWantABreak(Waiter waiter) {
+	waiters.get(waiter).state = breakrequested;
+}
+
+msgImOnBreakNow(Waiter waiter) {
+	waiters.get(waiter).state = onbreak;
+}
+
+msgIHateWaiting(Customer customer) {
+	waitList.remove(customer)
+}

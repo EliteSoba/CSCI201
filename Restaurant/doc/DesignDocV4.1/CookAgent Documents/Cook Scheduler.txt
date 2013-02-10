@@ -1,0 +1,17 @@
+Cook Scheduler
+
+if (exists o in orders such that o.status = done)
+	placeOrder(o)
+
+if (exists o in orders such that o.status = pending)
+	cookOrder(o)
+
+if (exists m in markets such that m.status = deadtome)
+	//Can send message to market saying market is dead to cook
+	//Can also remove market from markets list
+
+if (exists m in markets such that m.status = ordering)
+	DoPurchaseFood(m)
+
+if (exists m in markets such that m.status = paid)
+	DoStockFood(m)

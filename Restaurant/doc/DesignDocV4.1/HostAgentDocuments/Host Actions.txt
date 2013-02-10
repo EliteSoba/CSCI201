@@ -1,0 +1,18 @@
+Host Actions
+
+tellWaiterToSitCustomerAtTable(MyWaiter waiter, Customer customer, int table) {
+	waiter.wtr.msgSitCostomerAtTable(customer, table)
+	tables[table].occupied = true
+	waitList.remove(customer)
+}
+
+DoManageBreak(MyWaiter waiter) {
+	if (exists w in waiters such that w != waiter and w.state = working) {
+		waiter.wtr.msgBreakApproved()
+		waiter.state = breakapproved
+	}
+	else {
+		waiter.wtr.msgBreakDenied()
+		waiter.state = working
+	}
+}

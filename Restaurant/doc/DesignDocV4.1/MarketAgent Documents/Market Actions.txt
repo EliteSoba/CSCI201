@@ -1,0 +1,30 @@
+Market Actions
+
+DoCalculateOrder() {
+	boolean outOfStock = true;
+	for (o:cook.currentOrder)
+		if (o.amount > inventory.get(o.type).amount) {
+			o.amount = inventory.get(o.type).amount)
+			if (o.amount > 0)
+				outOfStock = false;
+		}
+	
+	if (outOfStock) {//for all orders in cook.currentOrder, amount = 0
+		cook.cook.msgIHaveNoFood()
+		cook.status = nothing
+	}
+	else {
+		cook.cook.msgHereIsPrice(DoCalculatePrice(cook.currentOrder), cook.currentOrder)
+		cook.status = paying
+	}
+}
+
+DoFulfilOrder() {
+	cook.status = nothing
+	cook.cook.TakeMyFood(cook.currentOrder)
+}
+
+int DoCalculatePrice(List<FoodData> currentOrder) {
+	//Calculate price of order
+	return price;
+}

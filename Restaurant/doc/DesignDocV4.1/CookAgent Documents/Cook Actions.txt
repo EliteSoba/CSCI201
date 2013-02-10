@@ -1,0 +1,38 @@
+Cook Actions
+
+cookOrder(Order order) {
+	if (inventory.get(order.choice).amount <= 0) {
+		order.waiter.msgOutOfStock(order.table, order.choice)
+		orders.remove(order)
+	}
+	else {
+		DoCooking(order)
+		order.status = cooking
+	}
+}
+
+placeOrder(Order order) {
+	DoPlacement(order);
+	order.waiter.msgOrderIsReady(order.tableNum, order.food);
+	orders.remove(order);
+}
+
+DoCooking(Order order) {
+	//GUI stuff
+}
+
+DoPlacement(Order order) {
+	//GUI stuff
+}
+
+
+DoPurchaseFood(MyMarket m) {
+	cashier.msgBuyMeFood(m.market, m.currentOrderCost, m.currentOrder)
+	m.status = paying
+}
+
+DoStockFood(MyMarket m) {
+	for (food:m.currentOrder)
+		inventory.get(food.type).amount += food.amount
+	m.status = available
+}

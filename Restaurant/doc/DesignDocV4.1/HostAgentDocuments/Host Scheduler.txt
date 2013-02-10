@@ -1,0 +1,9 @@
+Host Scheduler
+
+if (exists c in waitlist and w in waiters and t in tables such that w.state = working and t is not occupied)
+	tellWaiterToSitCustomerAtTable(w, c, t)
+
+if (exists w in waiters such that w.state = breakrequested)
+	DoManageBreak(w)
+
+//From time to time, call waiter.msgBreakTimesOver()

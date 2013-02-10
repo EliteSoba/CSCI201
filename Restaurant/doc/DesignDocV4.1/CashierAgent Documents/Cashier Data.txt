@@ -1,0 +1,31 @@
+Cashier Data
+
+class MyCustomer {
+	Waiter waiter //The waiter in charge of the customer
+	Customer customer
+	String choice
+	CustomerState state = paying
+	int money = 0
+}
+
+List<MyCustomer> customers
+enum CustomerState = {paying, paid, awaitingChange, poor}
+
+int kidneys = 0; //A collection of kidneys taken from poor customers. At the end of day, sells each for thousands
+
+String name
+int funds //Initial funds of restaurant
+
+class FoodData {
+	String type
+	double cookTime
+	int amount
+}
+
+class Order {
+	List<FoodData> food
+	Market market
+	int cost
+}
+
+List<Order> cookOrders

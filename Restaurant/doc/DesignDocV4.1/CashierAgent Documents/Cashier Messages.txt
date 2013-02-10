@@ -1,0 +1,20 @@
+Cashier Messages
+
+msgCustomerDone(Customer customer, String choice) {
+	customers.add(new MyCustomer(customer, choice))
+}
+
+msgTakeMyMoney(Customer customer, int money) {
+	//Makes assumption that enough money is paid
+	//If not enough money is available, assumes different message call
+	customers.get(customer).state = awaitingChange
+	customers.get(customer).money = money
+}
+
+msgICantPay(Customer customer) {
+	customers.get(customer).state = poor)
+}
+
+msgBuyMeFood(Market market, int cost, List<FoodData> food) {
+	cookOrders.add(new Order(market, cost, food))
+}

@@ -103,19 +103,19 @@ public class MarketAgent extends Agent {
 				o.amount = 0;
 			}
 			else if (o.amount > inventory.get(o.type).amount) {
-				o.amount = inventory.get(o.type).amount);
+				o.amount = inventory.get(o.type).amount;
 				if (o.amount > 0)
 					outOfStock = false;
 			}
 		}
 	
 		if (outOfStock) {//for all orders in cook.currentOrder, amount = 0
-			cook.cook.msgIHaveNoFood();
+			cook.cook.msgIHaveNoFood(this);
 			cook.status = CookStatus.nothing;
 		}
 		
 		else {
-			cook.cook.msgHereIsPrice(DoCalculatePrice(cook.currentOrder), cook.currentOrder);
+			cook.cook.msgHereIsPrice(this, DoCalculatePrice(cook.currentOrder), cook.currentOrder);
 			cook.status = CookStatus.paying;
 		}
     }
@@ -126,7 +126,7 @@ public class MarketAgent extends Agent {
     private void DoFulfilOrder() {
     	cook.status = CookStatus.nothing;
 		
-    	cook.cook.TakeMyFood(cook.currentOrder);
+    	cook.cook.msgTakeMyFood(this, cook.currentOrder);
     }
 
     // *** EXTRA ***

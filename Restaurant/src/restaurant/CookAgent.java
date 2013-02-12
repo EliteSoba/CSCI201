@@ -19,6 +19,9 @@ public class CookAgent extends Agent {
     private List<Order> orders = new ArrayList<Order>();
     private Map<String,FoodData> inventory = new HashMap<String,FoodData>();
     public enum Status {pending, cooking, done}; // order status
+    
+    Set<MyMarket> markets = new HashSet<MyMarket>();
+    CashierAgent cashier;
 
     //Name of the cook
     private String name;
@@ -56,6 +59,24 @@ public class CookAgent extends Agent {
 	    this.cookTime = cookTime;
 	    amount = 10;
 	}
+    }
+    enum MarketStatus {available, ordering, paying, paid, deadtome};
+    /** Private class to store market information.
+     * Contains the market, status, and order info
+     */
+    public class MyMarket {
+    	MarketAgent market;
+    	MarketStatus status;
+    	List<FoodData> currentOrder;
+    	double currentOrderCost;
+    	
+    	public MyMarket(MarketAgent mark) {
+    		market = mark;
+    		status = MarketStatus.available;
+    		currentOrder = new ArrayList<FoodData>();
+    		currentOrderCost = 0;
+    	}
+    	
     }
     /** Private class to store order information.
      *  Contains the waiter, table number, food item,
@@ -100,6 +121,43 @@ public class CookAgent extends Agent {
     public void msgHereIsAnOrder(WaiterAgent waiter, int tableNum, String choice){
 	orders.add(new Order(waiter, tableNum, choice));
 	stateChanged();
+    }
+    
+    /** Message for when a Market runs out of food
+     * @param market the market the message belongs to
+     */
+    public void msgIHaveNoFood(MarketAgent market) {
+    	for (MyMarket m:markets)
+    		if (m.market == market)
+    			m.status = MarketStatus.deadtome;
+    }
+    
+    /** Message to denote the price of a market order
+     * @param market the market the message belongs to
+     * @param price the price of the order
+     * @param curorder the order
+     */
+    public void msgHereIsPrice(MarketAgent market, double price, List<FoodData> curorder) {
+    	for (MyMarket m:markets) {
+    		if (m.market == market) {
+    			m.currentOrderCost = price;
+    			m.currentOrder = curorder;
+    			m.status = MarketStatus.ordering;
+    		}
+    	}
+    }
+    
+    /** Message to receive food from a market
+     * @param market the market the food belongs to
+     * @param curOrder the food being sent
+     */
+    public void msgTakeMyFood(MarketAgent market, List<FoodData> curOrder) {
+    	for (MyMarket m:markets) {
+    		if (m.market == market) {
+    			m.currentOrder = curOrder;
+    			m.status = MarketStatus.paid;
+    		}
+    	}
     }
 
 

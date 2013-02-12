@@ -35,6 +35,7 @@ public class WaiterAgent extends Agent {
 	public CustomerAgent cmr;
 	public String choice;
 	public int tableNum;
+	public Menu menu;
 	public Food food; //gui thing
 	double bill;
 
@@ -229,6 +230,16 @@ public class WaiterAgent extends Agent {
     	}
     }
     
+    public void msgOutOfStock(CustomerAgent customer) {
+    	for (MyCustomer c:customers) {
+    		if (c.cmr.equals(customer)) {
+    			c.state = CustomerState.NEEDS_REORDER;
+    			stateChanged();
+    			return;
+    		}
+    	}
+    }
+    
     /** Host sends this to the waiter to end his break
      */
     public void msgBreakTimesOver() {
@@ -248,6 +259,13 @@ public class WaiterAgent extends Agent {
 	//the waiter doesn't serve only one customer at a time
 	if(!customers.isEmpty()){
 	    //System.out.println("in scheduler, customers not empty:");
+		//Tells a customer his selection is out
+		for (MyCustomer c:customers) {
+			if (c.state == CustomerState.NEEDS_REORDER) {
+				doRequestReorder(c);
+				return true;
+			}
+		}
 	    //Gives food to customer if the order is ready
 	    for(MyCustomer c:customers){
 		if(c.state == CustomerState.ORDER_READY) {
@@ -328,6 +346,7 @@ public class WaiterAgent extends Agent {
 	DoSeatCustomer(customer); //animation	
 	customer.state = CustomerState.NO_ACTION;
 	customer.cmr.msgFollowMeToTable(this, new Menu());
+	customer.menu = new Menu();
 	stateChanged();
     }
     /** Takes down the customers order 
@@ -411,10 +430,11 @@ public class WaiterAgent extends Agent {
     /** Lets a customer know if they need to reorder again
      * @param customer the customer that needs to reorder
      */
-    /*private void doRequestReorder(MyCustomer customer) {
-    	customer.msgOrderAgain(customer.menu.remove(customer.choice));
+    private void doRequestReorder(MyCustomer customer) {
+    	customer.menu.removeItem(customer.choice);
+    	customer.cmr.msgOrderAgain(customer.menu);
     	customer.state = CustomerState.NO_ACTION;
-    }*/
+    }
 
     // Animation Actions
     void DoSeatCustomer (MyCustomer customer){

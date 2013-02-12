@@ -134,13 +134,13 @@ public class CashierAgent extends Agent {
     
     private void DoCalculateChange(MyCustomer customer) {
 		double change = customer.money - DoCalculatePrice(customer.choice);
-		customer.msgTakeYourChange(change);
+		customer.customer.msgTakeYourChange(change);
 		customers.remove(customer);
 		stateChanged();
 	}
 	
 	private void DoTakeKidney(MyCustomer customer) {
-		customer.removeKidney();
+		customer.customer.removeKidney();
 		kidneys++;
 		customer.waiter.msgCustomerPaidWithBody(customer.customer);
 		customers.remove(customer);
@@ -153,7 +153,7 @@ public class CashierAgent extends Agent {
 			cookOrders.remove(order);
 		}
 		else {
-			order.market.msgTakeMyMoney(this, order.cost, order.food);
+			order.market.msgTakeMyMoney(this, order.cost/*, order.food*/); //Food has been removed from the order because passing lists as messages makes me sad
 			cookOrders.remove(order);
 		}
 		stateChanged();

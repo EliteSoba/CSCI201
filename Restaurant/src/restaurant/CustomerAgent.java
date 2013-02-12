@@ -325,7 +325,7 @@ public class CustomerAgent extends Agent {
     }
     
     private void doProcessWaiting() {
-    	if (Math.random() < 0.5)
+    	if (Math.random() < 50.5)
     		host.msgIHateWaiting(this);
     	else
     		state = AgentState.WaitingInRestaurant;

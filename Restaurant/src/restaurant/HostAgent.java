@@ -120,6 +120,8 @@ public class HostAgent extends Agent {
      * @param customer The customer that leaves
      */
     public void msgIHateWaiting(CustomerAgent customer) {
+    	print(customer + " hates waiting");
+    	//Synchronized error here
     	waitList.remove(customer);
     	stateChanged();
     }

@@ -19,6 +19,7 @@ public class CookAgent extends Agent {
     private List<Order> orders = new ArrayList<Order>();
     private Map<String,FoodData> inventory = new HashMap<String,FoodData>();
     public enum Status {pending, cooking, done}; // order status
+    private boolean needsRestock = false;
     
     Set<MyMarket> markets = new HashSet<MyMarket>();
     CashierAgent cashier;
@@ -51,7 +52,7 @@ public class CookAgent extends Agent {
     public class FoodData {
 	String type; //kind of food
 	double cookTime;
-	int amount;
+	public int amount;
 	// other things ...
 	
 	public FoodData(String type, double cookTime){
@@ -123,6 +124,13 @@ public class CookAgent extends Agent {
 	stateChanged();
     }
     
+    /** Cook calls this when he is out of food.
+     */
+    public void msgIAmOutOfInventory() {
+    	needsRestock = true;
+    	stateChanged();
+    }
+    
     /** Message for when a Market runs out of food
      * @param market the market the message belongs to
      */
@@ -171,6 +179,11 @@ public class CookAgent extends Agent {
 
     /** Scheduler.  Determine what action is called for, and do it. */
     protected boolean pickAndExecuteAnAction() {
+    	
+    	if (needsRestock) {
+    		DoOrderFood();
+    		return true;
+    	}
 	
 	//If there exists an order o whose status is done, place o.
 	for(Order o:orders){
@@ -229,6 +242,28 @@ public class CookAgent extends Agent {
 	DoPlacement(order);
 	order.waiter.msgOrderIsReady(order.tableNum, order.food);
 	orders.remove(order);
+    }
+    
+    /** Orders food from an applicable market
+     * Does not check if the order is empty because it is assumed that there will be something to order if this is called
+     */
+    private void DoOrderFood() {
+    	List<FoodData> restock = new ArrayList<FoodData>();
+    	for (String key:inventory.keySet()) {
+    		FoodData f = inventory.get(key);
+    		if (f.amount == 10)
+    			continue;
+    		FoodData temp = new FoodData(f.type, f.cookTime);
+    		temp.amount = 10 - f.amount;
+    		restock.add(temp);
+    	}
+    	
+    	for (MyMarket m:markets) {
+    		if (m.status != MarketStatus.deadtome) {
+    			m.market.msgINeedFood(this, restock);
+    			return;
+    		}
+    	}
     }
     
     private void DoPurchaseFood(MyMarket m) {

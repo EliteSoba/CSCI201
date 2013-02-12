@@ -44,9 +44,9 @@ public class CashierAgent extends Agent {
     private class Order {
     	public List<FoodData> food;
     	public MarketAgent market;
-    	public int cost;
+    	public double cost;
     	
-    	public Order(List<FoodData> f, MarketAgent m, int c) {
+    	public Order(List<FoodData> f, MarketAgent m, double c) {
     		food = f;
     		market = m;
     		cost = c;
@@ -71,7 +71,7 @@ public class CashierAgent extends Agent {
     	customers.add(new MyCustomer(waiter, customer, choice));
     }
     
-    public void msgTakeMyMoney(CustomerAgent customer, int money) {
+    public void msgTakeMyMoney(CustomerAgent customer, double money) {
     	customers.get(customers.indexOf(customer)).state = CustomerState.awaitingChange;
     	customers.get(customers.indexOf(customer)).money = money;
     }
@@ -80,7 +80,7 @@ public class CashierAgent extends Agent {
     	customers.get(customers.indexOf(customer)).state = CustomerState.poor;
     }
     
-    public void msgBuyMeFood(List<FoodData> food, MarketAgent market, int cost) {
+    public void msgBuyMeFood(List<FoodData> food, double cost, MarketAgent market) {
     	cookOrders.add(new Order(food, market, cost));
     }
 
@@ -128,7 +128,7 @@ public class CashierAgent extends Agent {
     }
     
     private void DoCalculateChange(MyCustomer customer) {
-		int change = customer.money - DoCalculatePrice(customer.choice);
+		double change = customer.money - DoCalculatePrice(customer.choice);
 		customer.msgTakeYourChange(change);
 		customers.remove(customer);
 	}

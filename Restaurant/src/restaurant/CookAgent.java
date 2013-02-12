@@ -178,6 +178,27 @@ public class CookAgent extends Agent {
 		return true;
 	    }
 	}
+	
+	/*for (MyMarket m:markets) { //If you want to do something with the dead market
+		if (m.status == MarketStatus.deadtome) {
+			m.msgF***YOU();
+			return true;
+		}
+	}*/
+	
+	for (MyMarket m:markets) {
+		if (m.status == MarketStatus.ordering) {
+			DoPurchaseFood(m);
+			return true;
+		}
+	}
+	
+	for (MyMarket m:markets) {
+		if (m.status == MarketStatus.paid) {
+			DoStockFood(m);
+			return true;
+		}
+	}
 
 	//we have tried all our rules (in this case only one) and found
 	//nothing to do. So return false to main loop of abstract agent
@@ -200,6 +221,17 @@ public class CookAgent extends Agent {
 	DoPlacement(order);
 	order.waiter.msgOrderIsReady(order.tableNum, order.food);
 	orders.remove(order);
+    }
+    
+    private void DoPurchaseFood(MyMarket m) {
+    	cashier.msgBuyMeFood(m.currentOrder, m.currentOrderCost, m.market);
+    	m.status = MarketStatus.paying;
+    }
+    
+    private void DoStockFood(MyMarket m) {
+    	for (FoodData f:m.currentOrder)
+    		inventory.get(f.type).amount += f.amount;
+    	m.status = MarketStatus.available;
     }
 
 

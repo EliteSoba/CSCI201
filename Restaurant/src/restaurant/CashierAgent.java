@@ -69,19 +69,23 @@ public class CashierAgent extends Agent {
     
     public void msgCustomerDone(WaiterAgent waiter, CustomerAgent customer, String choice) {
     	customers.add(new MyCustomer(waiter, customer, choice));
+    	stateChanged();
     }
     
     public void msgTakeMyMoney(CustomerAgent customer, double money) {
     	customers.get(customers.indexOf(customer)).state = CustomerState.awaitingChange;
     	customers.get(customers.indexOf(customer)).money = money;
+    	stateChanged();
     }
     
     public void msgICantPay(CustomerAgent customer) {
     	customers.get(customers.indexOf(customer)).state = CustomerState.poor;
+    	stateChanged();
     }
     
     public void msgBuyMeFood(List<FoodData> food, double cost, MarketAgent market) {
     	cookOrders.add(new Order(food, market, cost));
+    	stateChanged();
     }
 
     /** Scheduler.  Determine what action is called for, and do it. */
@@ -125,12 +129,14 @@ public class CashierAgent extends Agent {
     	double bill = DoCalculatePrice(customer.choice);
 		customer.waiter.msgHereIsBill(customer.customer, bill);
 		customer.state = CustomerState.paid;
+		stateChanged();
     }
     
     private void DoCalculateChange(MyCustomer customer) {
 		double change = customer.money - DoCalculatePrice(customer.choice);
 		customer.msgTakeYourChange(change);
 		customers.remove(customer);
+		stateChanged();
 	}
 	
 	private void DoTakeKidney(MyCustomer customer) {
@@ -138,6 +144,7 @@ public class CashierAgent extends Agent {
 		kidneys++;
 		customer.waiter.msgCustomerPaidWithBody(customer.customer);
 		customers.remove(customer);
+		stateChanged();
 	}
 
 	private void DoProcessOrder(Order order) {
@@ -149,6 +156,7 @@ public class CashierAgent extends Agent {
 			order.market.msgTakeMyMoney(this, order.cost, order.food);
 			cookOrders.remove(order);
 		}
+		stateChanged();
 	}
 
     // *** EXTRA ***

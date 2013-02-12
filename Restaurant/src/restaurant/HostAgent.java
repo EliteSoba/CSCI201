@@ -94,18 +94,26 @@ public class HostAgent extends Agent {
      * @param waiter the waiter requesting a break
      */
     public void msgIWantABreak(WaiterAgent waiter) {
-    	for (MyWaiter w:waiters)
-    		if (w.wtr == waiter)
+    	for (MyWaiter w:waiters) {
+    		if (w.wtr.equals(waiter)) {
     			w.state = WaiterState.breakrequested;
+    			stateChanged();
+    			return;
+    		}
+    	}
     }
     
     /** Starts the waiter's break
      * @param waiter the waiter on break
      */
     public void ImOnBreakNow(WaiterAgent waiter) {
-    	for (MyWaiter w:waiters)
-    		if (w.wtr == waiter)
+    	for (MyWaiter w:waiters) {
+    		if (w.wtr.equals(waiter)) {
     			w.state = WaiterState.onbreak;
+    	    	stateChanged();
+    	    	return;
+    		}
+    	}
     }
     
     /** The customer can't wait and leaves the restaurant
@@ -113,6 +121,7 @@ public class HostAgent extends Agent {
      */
     public void msgIHateWaiting(CustomerAgent customer) {
     	waitList.remove(customer);
+    	stateChanged();
     }
 
     /** Scheduler.  Determine what action is called for, and do it. */
@@ -186,6 +195,7 @@ public class HostAgent extends Agent {
     	}
     	waiter.wtr.msgBreakDenied();
     	waiter.state = WaiterState.working;
+    	stateChanged();
     }
     
 

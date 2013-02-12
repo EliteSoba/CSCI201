@@ -43,7 +43,7 @@ doRequestBreak() {
 	breakstate = breakPending
 }
 
-goOnBreak() {
+doGoOnBreak() {
 	host.msgImOnBreakNow(this)
 }
 

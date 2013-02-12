@@ -71,6 +71,7 @@ public class MarketAgent extends Agent {
 		cook.status = CookStatus.paid;
 		if (price == 0) //If they pay nothing, they get nothing. A small hack.
 			this.cook.currentOrder = new ArrayList<FoodData>();
+    	stateChanged();
 	}
 
     /** Scheduler.  Determine what action is called for, and do it. */
@@ -118,6 +119,7 @@ public class MarketAgent extends Agent {
 			cook.cook.msgHereIsPrice(this, DoCalculatePrice(cook.currentOrder), cook.currentOrder);
 			cook.status = CookStatus.paying;
 		}
+		stateChanged();
     }
 	
     /** Gives the food to the cook
@@ -127,6 +129,7 @@ public class MarketAgent extends Agent {
     	cook.status = CookStatus.nothing;
 		
     	cook.cook.msgTakeMyFood(this, cook.currentOrder);
+    	stateChanged();
     }
 
     // *** EXTRA ***

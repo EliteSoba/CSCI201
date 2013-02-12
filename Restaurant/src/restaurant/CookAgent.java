@@ -127,9 +127,13 @@ public class CookAgent extends Agent {
      * @param market the market the message belongs to
      */
     public void msgIHaveNoFood(MarketAgent market) {
-    	for (MyMarket m:markets)
-    		if (m.market == market)
+    	for (MyMarket m:markets) {
+    		if (m.market.equals(market)) {
     			m.status = MarketStatus.deadtome;
+        		stateChanged();
+        		return;
+    		}
+    	}
     }
     
     /** Message to denote the price of a market order
@@ -139,10 +143,12 @@ public class CookAgent extends Agent {
      */
     public void msgHereIsPrice(MarketAgent market, double price, List<FoodData> curorder) {
     	for (MyMarket m:markets) {
-    		if (m.market == market) {
+    		if (m.market.equals(market)) {
     			m.currentOrderCost = price;
     			m.currentOrder = curorder;
     			m.status = MarketStatus.ordering;
+    	    	stateChanged();
+    	    	return;
     		}
     	}
     }
@@ -153,9 +159,11 @@ public class CookAgent extends Agent {
      */
     public void msgTakeMyFood(MarketAgent market, List<FoodData> curOrder) {
     	for (MyMarket m:markets) {
-    		if (m.market == market) {
+    		if (m.market.equals(market)) {
     			m.currentOrder = curOrder;
     			m.status = MarketStatus.paid;
+    			stateChanged();
+    			return;
     		}
     	}
     }

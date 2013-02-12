@@ -16,12 +16,14 @@ import java.util.*;
 public class WaiterAgent extends Agent {
 
    //State variables for Waiter
-    private boolean onBreak = false;
+	private BreakState breakstate = BreakState.working;
+
+	enum BreakState {working, breakRequested, breakPending, onBreak};
 
     //State constants for Customers
 
     public enum CustomerState 
-	{NEED_SEATED,READY_TO_ORDER,ORDER_PENDING,ORDER_READY,IS_DONE,NO_ACTION};
+	{NEED_SEATED, READY_TO_ORDER, ORDER_PENDING, ORDER_READY, NEEDS_REORDER, IS_DONE, PAYING, BILL_ARRIVED, NO_ACTION};
 
     Timer timer = new Timer();
 
@@ -34,6 +36,7 @@ public class WaiterAgent extends Agent {
 	public String choice;
 	public int tableNum;
 	public Food food; //gui thing
+	double bill;
 
 	/** Constructor for MyCustomer class.
 	 * @param cmr reference to customer
@@ -42,17 +45,20 @@ public class WaiterAgent extends Agent {
 	    this.cmr = cmr;
 	    tableNum = num;
 	    state = CustomerState.NO_ACTION;
+	    bill = 0;
 	}
     }
 
     //Name of waiter
     private String name;
+    double tipMoney = 0;
 
     //All the customers that this waiter is serving
     private List<MyCustomer> customers = new ArrayList<MyCustomer>();
 
     private HostAgent host;
     private CookAgent cook;
+    private CashierAgent cashier;
 
     //Animation Variables
     AStarTraversal aStar;
@@ -139,15 +145,52 @@ public class WaiterAgent extends Agent {
     }
 
     /** Customer sends this when they are done eating.
-     * @param customer customer who is leaving the restaurant. */
-    public void msgDoneEatingAndLeaving(CustomerAgent customer){
+     * @param customer customer who is done eating. */
+    public void msgDoneEating(CustomerAgent customer){
 	for(MyCustomer c:customers){
 	    if(c.cmr.equals(customer)){
-		c.state = CustomerState.IS_DONE;
+		c.state = CustomerState.PAYING;
 		stateChanged();
 		return;
 	    }
 	}
+    }
+    
+    /** Customer sends this when he is ready to leave
+     * @param customer The customer that is leaving
+     * @param tip The tip for the waiter
+     */
+    public void msgLeaving(CustomerAgent customer, double tip) { //I LIKE TIPS
+    	for (MyCustomer c:customers) {
+    		if (c.cmr.equals(customer)) {
+    			c.state = CustomerState.IS_DONE;
+    			tipMoney += tip;
+    			stateChanged();
+    			return;
+    		}
+    	}
+    }
+    
+    /** Waiter receives this from the Cashier with the bill for the customer
+     * @param customer the customer with the bill
+     * @param bill the bill
+     */
+    public void msgHereIsBill(CustomerAgent customer, double bill) {
+    	for (MyCustomer c:customers) {
+    		if (c.cmr.equals(customer)) {
+    			c.state = CustomerState.BILL_ARRIVED;
+    			c.bill = bill;
+    			stateChanged();
+    			return;
+    		}
+    	}
+    }
+    
+    /** The same as setBreakStatus essentially
+     */
+    public void goOnBreak() {
+    	breakstate = BreakState.breakRequested;
+    	stateChanged();
     }
 
     /** Sent from GUI to control breaks 
@@ -155,16 +198,52 @@ public class WaiterAgent extends Agent {
      *              false when the waiter should go off break
      *              Is the name onBreak right? What should it be?*/
     public void setBreakStatus(boolean state){
-	onBreak = state;
+	breakstate = state ? BreakState.breakRequested : BreakState.working;
 	stateChanged();
     }
+    
+    /** Allows the waiter to go on break - from host
+     */
+    public void msgBreakApproved() {
+    	breakstate = BreakState.onBreak;
+    	stateChanged();
+    }
 
-
+    /** Disallows the waiter to go on break - from host
+     */
+    public void msgBreakDenied() {
+    	breakstate = BreakState.working;
+    	stateChanged();
+    }
+    
+    /** Cashier sends this to alert the waiter that the customer left without paying money
+     * @param customer The customer that left
+     */
+    public void msgCustomerPaidWithBody(CustomerAgent customer) {
+    	for (MyCustomer c:customers) {
+    		if (c.cmr.equals(customer)) {
+    			c.state = CustomerState.IS_DONE;
+    			stateChanged();
+    			return;
+    		}
+    	}
+    }
+    
+    /** Host sends this to the waiter to end his break
+     */
+    public void msgBreakTimesOver() {
+    	breakstate = BreakState.working;
+    	stateChanged();
+    }
 
     /** Scheduler.  Determine what action is called for, and do it. */
     protected boolean pickAndExecuteAnAction() {
 	//print("in waiter scheduler");
 
+    if (breakstate == BreakState.breakRequested) {
+    	doRequestBreak();
+    	return true;
+    }
 	//Runs through the customers for each rule, so 
 	//the waiter doesn't serve only one customer at a time
 	if(!customers.isEmpty()){
@@ -207,7 +286,27 @@ public class WaiterAgent extends Agent {
 		    takeOrder(c);
 		    return true;
 		}
-	    }	    
+	    }	 
+	    
+	    //Gets bills for customers that are done eating
+	    for(MyCustomer c:customers) {
+	    	if (c.state == CustomerState.PAYING) {
+	    		getBill(c);
+	    		return true;
+	    	}
+	    }
+	    
+	    //Gives bill to customer
+	    for(MyCustomer c:customers) {
+	    	if (c.state == CustomerState.BILL_ARRIVED) {
+	    		giveBill(c);
+	    		return true;
+	    	}
+	    }
+	}
+	else if (breakstate == BreakState.onBreak) {
+		doGoOnBreak();
+		return true;
 	}
 	if (!currentPosition.equals(originalPosition)) {
 	    DoMoveToOriginalPosition();//Animation thing
@@ -278,6 +377,44 @@ public class WaiterAgent extends Agent {
 	customer.state = CustomerState.NO_ACTION;
 	stateChanged();
     }
+    
+    /** Requests bill from cashier for customer
+     * @param customer the customer that needs the bill
+     */
+    private void getBill(MyCustomer customer) {
+    	cashier.msgCustomerDone(this, customer.cmr, customer.choice);
+    	customer.state = CustomerState.NO_ACTION;
+    	stateChanged();
+    }
+    
+    /** Gives bill to customer
+     * @param customer the customer that needs the bill
+     */
+    private void giveBill(MyCustomer customer) {
+    	customer.cmr.msgHereIsBill(customer.bill);
+    	customer.state = CustomerState.NO_ACTION;
+    }
+    /** Requests a break from the host
+     */
+    private void doRequestBreak() {
+    	host.msgIWantABreak(this);
+    	breakstate = BreakState.breakPending;
+    	stateChanged();
+    }
+    
+    /** Alerts host of breakiness
+     */
+    private void doGoOnBreak() {
+    	host.ImOnBreakNow(this);
+    }
+    
+    /** Lets a customer know if they need to reorder again
+     * @param customer the customer that needs to reorder
+     */
+    /*private void doRequestReorder(MyCustomer customer) {
+    	customer.msgOrderAgain(customer.menu.remove(customer.choice));
+    	customer.state = CustomerState.NO_ACTION;
+    }*/
 
     // Animation Actions
     void DoSeatCustomer (MyCustomer customer){
@@ -436,7 +573,7 @@ public class WaiterAgent extends Agent {
 
     /** @return true if the waiter is on break, false otherwise */
     public boolean isOnBreak(){
-	return onBreak;
+	return breakstate == BreakState.onBreak;
     }
 
 }

@@ -65,10 +65,10 @@ public class CookAgent extends Agent {
      * Contains the market, status, and order info
      */
     public class MyMarket {
-    	MarketAgent market;
-    	MarketStatus status;
-    	List<FoodData> currentOrder;
-    	double currentOrderCost;
+    	public MarketAgent market;
+    	public MarketStatus status;
+    	public List<FoodData> currentOrder;
+    	public double currentOrderCost;
     	
     	public MyMarket(MarketAgent mark) {
     		market = mark;

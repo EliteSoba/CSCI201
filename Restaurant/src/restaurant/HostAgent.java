@@ -30,16 +30,21 @@ public class HostAgent extends Agent {
     /** Private class to hold waiter information and state */
     private class MyWaiter {
 	public WaiterAgent wtr;
-	public boolean working = true;
+	public WaiterState state;
 
 	/** Constructor for MyWaiter class
 	 * @param waiter
 	 */
 	public MyWaiter(WaiterAgent waiter){
 	    wtr = waiter;
+	    state = WaiterState.working;
 	}
     }
 
+    enum WaiterState {working, breakrequested, breakapproved, onbreak}; //A change from the boolean because I don't want to take a waiter off break before they actually get on break because they're busy waiting customers
+  //Although it's not in the requirements, but I want to be a nice employer
+
+    
     //List of all the customers that need a table
     private List<CustomerAgent> waitList =
 		Collections.synchronizedList(new ArrayList<CustomerAgent>());
@@ -91,7 +96,7 @@ public class HostAgent extends Agent {
 	if(!waitList.isEmpty() && !waiters.isEmpty()){
 	    synchronized(waiters){
 		//Finds the next waiter that is working
-		while(!waiters.get(nextWaiter).working){
+		while(!waiters.get(nextWaiter).state == WaiterState.working){
 		    nextWaiter = (nextWaiter+1)%waiters.size();
 		}
 	    }

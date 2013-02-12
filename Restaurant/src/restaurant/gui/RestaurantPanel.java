@@ -33,6 +33,7 @@ public class RestaurantPanel extends JPanel {
     //Host, cook, waiters and customers
     private HostAgent host = new HostAgent("Prof. W.", nTables);
     private CookAgent cook = new CookAgent("W. Puck", restaurant);
+    private CashierAgent cashier = new CashierAgent("Cashierman");
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
     private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
 
@@ -45,7 +46,9 @@ public class RestaurantPanel extends JPanel {
 
     public RestaurantPanel(RestaurantGui gui){
 	this.gui = gui;
-
+	
+	cook.setCashier(cashier);
+	
 	//intialize the semaphore grid
 	for (int i=0; i<gridX+1 ; i++)
 	    for (int j = 0; j<gridY+1; j++)
@@ -98,6 +101,7 @@ public class RestaurantPanel extends JPanel {
 
 	host.startThread();
 	cook.startThread();
+	cashier.startThread();
 
 	setLayout(new GridLayout(1,2, 20,20));
 	group.setLayout(new GridLayout(1,2, 10,10));
@@ -164,6 +168,7 @@ public class RestaurantPanel extends JPanel {
 	    WaiterAgent w = new WaiterAgent(name, aStarTraversal, restaurant, tables);
 	    w.setHost(host);
 	    w.setCook(cook);
+	    w.setCashier(cashier);
 	    host.setWaiter(w);
 	    waiters.add(w);
 	    w.startThread();

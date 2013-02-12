@@ -148,9 +148,11 @@ public class WaiterAgent extends Agent {
     /** Customer sends this when they are done eating.
      * @param customer customer who is done eating. */
     public void msgDoneEating(CustomerAgent customer){
+    	print(customer + " finished eating");
 	for(MyCustomer c:customers){
 	    if(c.cmr.equals(customer)){
 		c.state = CustomerState.PAYING;
+		print("I found the customer");
 		stateChanged();
 		return;
 	    }
@@ -401,6 +403,7 @@ public class WaiterAgent extends Agent {
      * @param customer the customer that needs the bill
      */
     private void getBill(MyCustomer customer) {
+    	print("Getting the bill for " + customer.cmr);
     	cashier.msgCustomerDone(this, customer.cmr, customer.choice);
     	customer.state = CustomerState.NO_ACTION;
     	stateChanged();
@@ -410,7 +413,7 @@ public class WaiterAgent extends Agent {
      * @param customer the customer that needs the bill
      */
     private void giveBill(MyCustomer customer) {
-    	customer.cmr.msgHereIsBill(customer.bill);
+    	customer.cmr.msgHereIsBill(cashier, customer.bill);
     	customer.state = CustomerState.NO_ACTION;
     }
     /** Requests a break from the host
@@ -589,6 +592,11 @@ public class WaiterAgent extends Agent {
     /** Hack to set the host for the waiter */
     public void setHost(HostAgent host){
 	this.host = host;
+    }
+    
+    /** Hack to set the cashier for the waiter */
+    public void setCashier(CashierAgent cashier) {
+    	this.cashier = cashier;
     }
 
     /** @return true if the waiter is on break, false otherwise */

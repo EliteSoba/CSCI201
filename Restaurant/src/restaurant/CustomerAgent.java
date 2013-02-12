@@ -105,7 +105,8 @@ public class CustomerAgent extends Agent {
     /** Waiter sends this when the bill is ready
      * @param bill The cost of the meal
      */
-    public void msgHereIsBill(double bill) {
+    public void msgHereIsBill(CashierAgent cashier, double bill) {
+    	this.cashier = cashier;
     	this.bill = bill;
     	if (bill > money)
     		events.add(AgentEvent.gotUnpayableBill);
@@ -274,6 +275,7 @@ public class CustomerAgent extends Agent {
     
     /** Tells the waiter he's done*/
     private void doneEating() {
+    	print("I finished eating");
     	waiter.msgDoneEating(this);
     	stateChanged();
     }

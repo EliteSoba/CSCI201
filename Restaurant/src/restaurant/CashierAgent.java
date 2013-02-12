@@ -18,7 +18,7 @@ public class CashierAgent extends Agent {
 		public WaiterAgent waiter; //The waiter in charge of the customer
 		public CustomerAgent customer;
 		public String choice;
-		public CustomerState state = CustomerState.paying;
+		public CustomerState state;
 		double money;
 		
 		public MyCustomer(WaiterAgent w, CustomerAgent c, String ch) {
@@ -26,6 +26,7 @@ public class CashierAgent extends Agent {
 			customer = c;
 			choice = ch;
 			money = 0;
+			state = CustomerState.paying;
 		}
 	}
 	
@@ -61,6 +62,7 @@ public class CashierAgent extends Agent {
 	super();
 	this.name = name;
 	funds = 100000;
+	customers = new ArrayList<MyCustomer>();
 	kidneys = 0;
 	cookOrders = new ArrayList<Order>();
     }
@@ -68,18 +70,27 @@ public class CashierAgent extends Agent {
     // *** MESSAGES ***
     
     public void msgCustomerDone(WaiterAgent waiter, CustomerAgent customer, String choice) {
+    	print("I acknowledge that " + customer + " has finished eating");
     	customers.add(new MyCustomer(waiter, customer, choice));
     	stateChanged();
     }
     
     public void msgTakeMyMoney(CustomerAgent customer, double money) {
-    	customers.get(customers.indexOf(customer)).state = CustomerState.awaitingChange;
-    	customers.get(customers.indexOf(customer)).money = money;
+    	for (MyCustomer c:customers) {
+    		if (c.customer.equals(customer)) {
+    			c.state = CustomerState.awaitingChange;
+    			c.money = money;
+    		}
+    	}
     	stateChanged();
     }
     
     public void msgICantPay(CustomerAgent customer) {
-    	customers.get(customers.indexOf(customer)).state = CustomerState.poor;
+    	for (MyCustomer c:customers) {
+    		if (c.customer.equals(customer)) {
+    			c.state = CustomerState.poor;
+    		}
+    	}
     	stateChanged();
     }
     
@@ -126,6 +137,7 @@ public class CashierAgent extends Agent {
     // *** ACTIONS ***
     
     private void DoCalculateBill(MyCustomer customer) {
+    	print("Calculating bill for " + customer.customer);
     	double bill = DoCalculatePrice(customer.choice);
 		customer.waiter.msgHereIsBill(customer.customer, bill);
 		customer.state = CustomerState.paid;
@@ -133,6 +145,7 @@ public class CashierAgent extends Agent {
     }
     
     private void DoCalculateChange(MyCustomer customer) {
+    	print("Calculating change for " + customer.customer);
 		double change = customer.money - DoCalculatePrice(customer.choice);
 		customer.customer.msgTakeYourChange(change);
 		customers.remove(customer);
@@ -140,6 +153,7 @@ public class CashierAgent extends Agent {
 	}
 	
 	private void DoTakeKidney(MyCustomer customer) {
+		print("Removing kidney from " + customer.customer);
 		customer.customer.removeKidney();
 		kidneys++;
 		customer.waiter.msgCustomerPaidWithBody(customer.customer);
@@ -148,6 +162,7 @@ public class CashierAgent extends Agent {
 	}
 
 	private void DoProcessOrder(Order order) {
+		print("Ordering food from market");
 		if (order.cost > funds) {//If too expensive, orders nothing. If desired, an algorithm to remove certain foods from the order could be used
 			order.market.msgTakeMyMoney(this, 0);
 			cookOrders.remove(order);

@@ -302,6 +302,10 @@ public class CookAgent extends Agent {
 	print("Order finished: " + order + " for table:" + (order.tableNum+1));
 	order.food.placeOnCounter();
     }
+    /** Sets the cashier*/
+    public void setCashier(CashierAgent cashier) {
+    	this.cashier = cashier;
+    }
 }
 
 

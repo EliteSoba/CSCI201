@@ -147,6 +147,10 @@ public class HostAgent extends Agent {
 		    return true;
 		}
 	    }
+	    //At this point, no tables are open, message customer that he'll have to wait
+	    //Will do this more elegantly in a bit
+	    //waitList.get(0).msgYoullHaveToWait();
+	    //return true;
 	}
 	
 	for (MyWaiter w:waiters) {

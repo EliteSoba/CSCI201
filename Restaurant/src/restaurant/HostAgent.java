@@ -89,6 +89,31 @@ public class HostAgent extends Agent {
 	tables[tableNum].occupied = false;
 	stateChanged();
     }
+    
+    /** Waiter requests a break
+     * @param waiter the waiter requesting a break
+     */
+    public void msgIWantABreak(WaiterAgent waiter) {
+    	for (MyWaiter w:waiters)
+    		if (w.wtr == waiter)
+    			w.state = WaiterState.breakrequested;
+    }
+    
+    /** Starts the waiter's break
+     * @param waiter the waiter on break
+     */
+    public void ImOnBreakNow(WaiterAgent waiter) {
+    	for (MyWaiter w:waiters)
+    		if (w.wtr == waiter)
+    			w.state = WaiterState.onbreak;
+    }
+    
+    /** The customer can't wait and leaves the restaurant
+     * @param customer The customer that leaves
+     */
+    public void msgIHateWaiting(CustomerAgent customer) {
+    	waitList.remove(customer);
+    }
 
     /** Scheduler.  Determine what action is called for, and do it. */
     protected boolean pickAndExecuteAnAction() {
@@ -96,7 +121,7 @@ public class HostAgent extends Agent {
 	if(!waitList.isEmpty() && !waiters.isEmpty()){
 	    synchronized(waiters){
 		//Finds the next waiter that is working
-		while(!waiters.get(nextWaiter).state == WaiterState.working){
+		while(!(waiters.get(nextWaiter).state == WaiterState.working)){
 		    nextWaiter = (nextWaiter+1)%waiters.size();
 		}
 	    }
@@ -113,6 +138,20 @@ public class HostAgent extends Agent {
 		    return true;
 		}
 	    }
+	}
+	
+	for (MyWaiter w:waiters) {
+		if (w.state == WaiterState.breakrequested) {
+			DoManageBreak(w);
+			return true;
+		}
+	}
+	
+	for (MyWaiter w:waiters) {
+		if (w.state == WaiterState.onbreak) {
+			if (Math.random() <= 0.3)
+				w.wtr.msgBreakTimesOver(); //A hack to ensure they get back to work at some time
+		}
 	}
 
 	//we have tried all our rules (in this case only one) and found
@@ -137,6 +176,17 @@ public class HostAgent extends Agent {
 	stateChanged();
     }
 	
+    private void DoManageBreak(MyWaiter waiter) {
+    	for (MyWaiter w:waiters) {
+    		if (w != waiter && w.state == WaiterState.working) {
+    			waiter.wtr.msgBreakApproved();
+    			waiter.state = WaiterState.breakapproved;
+    			return;
+    		}
+    	}
+    	waiter.wtr.msgBreakDenied();
+    	waiter.state = WaiterState.working;
+    }
     
 
     // *** EXTRA ***

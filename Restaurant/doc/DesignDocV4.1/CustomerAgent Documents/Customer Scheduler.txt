@@ -12,6 +12,9 @@ if (state = WaitingInRestaurant) {
 		makeMenuChoice()
 		state = SeatedWithMenu
 	}
+	else if (event = pleaseWait) {
+		DoProcessWaiting()
+	}
 }
 
 if (state = SeatedWithMenu) {

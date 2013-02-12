@@ -63,3 +63,10 @@ doReorderFood() {
 		waiter.msgDoneEatingAndLeaving(0)
 	}
 }
+
+doProcessWaiting() {
+	if (Math.Random() > 0.5)
+		host.msgIHateWaiting()
+	else
+		state = WaitingInRestaurant
+}

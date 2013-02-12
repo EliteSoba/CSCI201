@@ -47,3 +47,7 @@ msgOrderAgain(Menu menu) {
 	menu = menu
 	events.add(pleaseReorder)
 }
+
+msgYoullHaveToWait() {
+	events.add(pleaseWait)
+}

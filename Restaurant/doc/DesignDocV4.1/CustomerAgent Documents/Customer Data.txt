@@ -17,5 +17,5 @@ Menu menu
 
 boolean isHungry = false
 enum AgentState = {DoingNothing, WaitingInRestaurant, SeatedWithMenu, WaiterCalled, WaitingForFood, Eating, Paying}
-enum AgentEvent = {gotHungry, beingSeated, decidedChoice, waiterToTakeOrder, foodDelivered, doneEating, gotUnpayableBill, gotBill, gotChange, lostKidney, pleaseReorder}
+enum AgentEvent = {gotHungry, beingSeated, decidedChoice, waiterToTakeOrder, foodDelivered, doneEating, gotUnpayableBill, gotBill, gotChange, lostKidney, pleaseReorder, pleaseWait}
 List<AgentEvent> events

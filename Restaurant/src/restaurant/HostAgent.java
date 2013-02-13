@@ -121,7 +121,7 @@ public class HostAgent extends Agent {
      */
     public void msgIHateWaiting(CustomerAgent customer) {
     	print(customer + " hates waiting");
-    	//Synchronized error here
+    	//TODO: Synchronized error here
     	waitList.remove(customer);
     	stateChanged();
     }
@@ -139,20 +139,19 @@ public class HostAgent extends Agent {
 	    print("picking waiter number:"+nextWaiter);
 	    //Then runs through the tables and finds the first unoccupied 
 	    //table and tells the waiter to sit the first customer at that table
-	    for(int i=0; i < nTables; i++){
 
-		if(!tables[i].occupied){
-		    synchronized(waitList){
-			tellWaiterToSitCustomerAtTable(waiters.get(nextWaiter),
-			    waitList.get(0), i);
-		    }
-		    return true;
-		}
+	    synchronized(waitList){
+	    	for(int i=0; i < nTables; i++){
+	    		if(!tables[i].occupied){
+	    			tellWaiterToSitCustomerAtTable(waiters.get(nextWaiter), waitList.get(0), i);
+	    			return true;
+	    		}
+	    	}
+    		//At this point, no tables are open, message customer that he'll have to wait
+    		//Will do this more elegantly in a bit
+	    	waitList.get(0).msgYoullHaveToWait();
+	    	return true;
 	    }
-	    //At this point, no tables are open, message customer that he'll have to wait
-	    //Will do this more elegantly in a bit
-	    //waitList.get(0).msgYoullHaveToWait();
-	    //return true;
 	}
 	
 	for (MyWaiter w:waiters) {

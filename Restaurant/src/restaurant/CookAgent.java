@@ -45,22 +45,7 @@ public class CookAgent extends Agent {
 		inventory.put("Pizza",new FoodData("Pizza", 3));
 		inventory.put("Salad",new FoodData("Salad", 2));
 	}
-	/** Public class to store information about food.
-	 *  Contains the food type, its cooking time, and amount in inventory
-	 *  public to share with cashier and market when passing it back and forth.
-	 */
-	public class FoodData {
-		String type; //kind of food
-		double cookTime;
-		public int amount;
-		// other things ...
-
-		public FoodData(String type, double cookTime){
-			this.type = type;
-			this.cookTime = cookTime;
-			amount = 2;
-		}
-	}
+	
 	enum MarketStatus {available, ordering, paying, paid, deadtome};
 	/** Private class to store market information.
 	 * Contains the market, status, and order info
@@ -239,8 +224,15 @@ public class CookAgent extends Agent {
 	 * @param order
 	 */
 	private void cookOrder(Order order){
+		if (inventory.get(order.choice).amount <= 0) {
+			order.waiter.msgOutOfStock(order.tableNum);
+			return;
+		}
 		DoCooking(order);
 		order.status = Status.cooking;
+		inventory.get(order.choice).amount -= 1;
+		if (inventory.get(order.choice).amount <= 2)
+			this.msgIAmOutOfInventory();
 	}
 
 	private void placeOrder(Order order){
@@ -254,6 +246,7 @@ public class CookAgent extends Agent {
 	 */
 	private void DoOrderFood() {
 		print("ordering food");
+		needsRestock = false;
 		List<FoodData> restock = new ArrayList<FoodData>();
 		for (String key:inventory.keySet()) {
 			FoodData f = inventory.get(key);

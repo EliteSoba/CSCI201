@@ -2,7 +2,6 @@ package restaurant;
 
 import agent.Agent;
 import java.util.*;
-import restaurant.CookAgent.FoodData;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -42,6 +41,14 @@ public class MarketAgent extends Agent {
 		this.name = name;
 		cook = new MyCook();
 		inventory = new HashMap<String, FoodData>();
+		String[] temp = new Menu().choices;
+		FoodData tempo;
+		for (int i = 0; i < temp.length; i++) {
+			tempo = new FoodData(temp[i], 0);
+			tempo.amount = 100;
+			inventory.put(temp[i], tempo);
+			
+		}
 
 	}
 
@@ -58,6 +65,7 @@ public class MarketAgent extends Agent {
 		for (int i = 0; i < currentOrder.size(); i++) {
 			this.cook.currentOrder.add(currentOrder.get(i));
 		}
+		this.cook.status = CookStatus.ordering;
 		stateChanged();
 	}
 
@@ -103,13 +111,20 @@ public class MarketAgent extends Agent {
 		print("calculating cost of order");
 		boolean outOfStock = true;
 		for (FoodData o:cook.currentOrder) {
+			print("searching for " + o.type);
 			if (inventory.get(o.type) == null) {
+				print("couldn't find " + o.type);
 				o.amount = 0;
 			}
 			else if (o.amount > inventory.get(o.type).amount) {
+				print ("found item " + o.type);
 				o.amount = inventory.get(o.type).amount;
 				if (o.amount > 0)
 					outOfStock = false;
+			}
+			else {
+				print ("found item " + o.type);
+				outOfStock = false;
 			}
 		}
 

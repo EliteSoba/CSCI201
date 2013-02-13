@@ -232,9 +232,12 @@ public class WaiterAgent extends Agent {
     	}
     }
     
-    public void msgOutOfStock(CustomerAgent customer) {
+    /** Cook sends this when inventory is out of stock
+     * @param tableNum the table of the customer whose order is out of stock
+     */
+    public void msgOutOfStock(int tableNum) {
     	for (MyCustomer c:customers) {
-    		if (c.cmr.equals(customer)) {
+    		if (c.tableNum == tableNum) {
     			c.state = CustomerState.NEEDS_REORDER;
     			stateChanged();
     			return;

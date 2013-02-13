@@ -34,6 +34,7 @@ public class RestaurantPanel extends JPanel {
     private HostAgent host = new HostAgent("Prof. W.", nTables);
     private CookAgent cook = new CookAgent("W. Puck", restaurant);
     private CashierAgent cashier = new CashierAgent("Cashierman");
+    private MarketAgent market1 = new MarketAgent("Market");
     private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
     private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
 
@@ -102,6 +103,7 @@ public class RestaurantPanel extends JPanel {
 	host.startThread();
 	cook.startThread();
 	cashier.startThread();
+	cook.addMarket(market1);
 
 	setLayout(new GridLayout(1,2, 20,20));
 	group.setLayout(new GridLayout(1,2, 10,10));

@@ -20,7 +20,7 @@ public class CashierAgent extends Agent {
 		public String choice;
 		public CustomerState state;
 		double money;
-		
+
 		public MyCustomer(WaiterAgent w, CustomerAgent c, String ch) {
 			waiter = w;
 			customer = c;
@@ -29,129 +29,132 @@ public class CashierAgent extends Agent {
 			state = CustomerState.paying;
 		}
 	}
-	
+
 	//List of customers
 	List<MyCustomer> customers;
 	enum CustomerState {paying, paid, awaitingChange, poor};
-	
+
 	//number of kidneys taken from customers
 	int kidneys;
-    //Name of the Cashier
-    private String name;
-    //Initial funds of restaurant
-    int funds;
-    
-    /** Private class for cook orders*/
-    private class Order {
-    	public List<FoodData> food;
-    	public MarketAgent market;
-    	public double cost;
-    	
-    	public Order(List<FoodData> f, MarketAgent m, double c) {
-    		food = f;
-    		market = m;
-    		cost = c;
-    	}
-    }
-    
-    List<Order> cookOrders;
+	//Name of the Cashier
+	private String name;
+	//Initial funds of restaurant
+	int funds;
 
-    /** Constructor for CashierAgent class 
-     * @param name name of the market */
-    public CashierAgent(String name) {
-	super();
-	this.name = name;
-	funds = 100000;
-	customers = new ArrayList<MyCustomer>();
-	kidneys = 0;
-	cookOrders = new ArrayList<Order>();
-    }
+	/** Private class for cook orders*/
+	private class Order {
+		public List<FoodData> food;
+		public MarketAgent market;
+		public double cost;
 
-    // *** MESSAGES ***
-    
-    public void msgCustomerDone(WaiterAgent waiter, CustomerAgent customer, String choice) {
-    	print("I acknowledge that " + customer + " has finished eating");
-    	customers.add(new MyCustomer(waiter, customer, choice));
-    	stateChanged();
-    }
-    
-    public void msgTakeMyMoney(CustomerAgent customer, double money) {
-    	for (MyCustomer c:customers) {
-    		if (c.customer.equals(customer)) {
-    			c.state = CustomerState.awaitingChange;
-    			c.money = money;
-    		}
-    	}
-    	stateChanged();
-    }
-    
-    public void msgICantPay(CustomerAgent customer) {
-    	for (MyCustomer c:customers) {
-    		if (c.customer.equals(customer)) {
-    			c.state = CustomerState.poor;
-    		}
-    	}
-    	stateChanged();
-    }
-    
-    public void msgBuyMeFood(List<FoodData> food, double cost, MarketAgent market) {
-    	cookOrders.add(new Order(food, market, cost));
-    	stateChanged();
-    }
-
-    /** Scheduler.  Determine what action is called for, and do it. */
-    protected boolean pickAndExecuteAnAction() {
-	
-	for (MyCustomer c:customers) {
-		if (c.state == CustomerState.paying) {
-			DoCalculateBill(c);
-			return true;
+		public Order(List<FoodData> f, MarketAgent m, double c) {
+			food = f;
+			market = m;
+			cost = c;
 		}
 	}
 
-	for (MyCustomer c:customers) {
-		if (c.state == CustomerState.awaitingChange) {
+	List<Order> cookOrders;
+
+	/** Constructor for CashierAgent class 
+	 * @param name name of the market */
+	public CashierAgent(String name) {
+		super();
+		this.name = name;
+		funds = 100000;
+		customers = new ArrayList<MyCustomer>();
+		kidneys = 0;
+		cookOrders = new ArrayList<Order>();
+	}
+
+	// *** MESSAGES ***
+
+	public void msgCustomerDone(WaiterAgent waiter, CustomerAgent customer, String choice) {
+		print("I acknowledge that " + customer + " has finished eating");
+		customers.add(new MyCustomer(waiter, customer, choice));
+		stateChanged();
+	}
+
+	public void msgTakeMyMoney(CustomerAgent customer, double money) {
+		print(customer + " has paid!");
+		for (MyCustomer c:customers) {
+			if (c.customer.equals(customer)) {
+				c.state = CustomerState.awaitingChange;
+				c.money = money;
+			}
+		}
+		stateChanged();
+	}
+
+	public void msgICantPay(CustomerAgent customer) {
+		print(customer + " can't pay!");
+		for (MyCustomer c:customers) {
+			if (c.customer.equals(customer)) {
+				c.state = CustomerState.poor;
+			}
+		}
+		stateChanged();
+	}
+
+	public void msgBuyMeFood(List<FoodData> food, double cost, MarketAgent market) {
+		print("cook wants food!");
+		cookOrders.add(new Order(food, market, cost));
+		stateChanged();
+	}
+
+	/** Scheduler.  Determine what action is called for, and do it. */
+	protected boolean pickAndExecuteAnAction() {
+
+		for (MyCustomer c:customers) {
+			if (c.state == CustomerState.paying) {
+				DoCalculateBill(c);
+				return true;
+			}
+		}
+
+		for (MyCustomer c:customers) {
+			if (c.state == CustomerState.awaitingChange) {
 				DoCalculateChange(c);
 				return true;
+			}
 		}
-	}
 
-	for (MyCustomer c:customers) {
-		if (c.state == CustomerState.poor) {
-			DoTakeKidney(c);
-			return true;
+		for (MyCustomer c:customers) {
+			if (c.state == CustomerState.poor) {
+				DoTakeKidney(c);
+				return true;
+			}
 		}
-	}
-			
-	for (Order o:cookOrders) {
+
+		for (Order o:cookOrders) {
 			DoProcessOrder(o);
 			return true;
 		}
 
-	//we have tried all our rules and found
-	//nothing to do. So return false to main loop of abstract agent
-	//and wait.
-	return false;
-    }
-    
-    // *** ACTIONS ***
-    
-    private void DoCalculateBill(MyCustomer customer) {
-    	print("Calculating bill for " + customer.customer);
-    	double bill = DoCalculatePrice(customer.choice);
+		//we have tried all our rules and found
+		//nothing to do. So return false to main loop of abstract agent
+		//and wait.
+		return false;
+	}
+
+	// *** ACTIONS ***
+
+	private void DoCalculateBill(MyCustomer customer) {
+		print("Calculating bill for " + customer.customer);
+		double bill = DoCalculatePrice(customer.choice);
 		customer.waiter.msgHereIsBill(customer.customer, bill);
 		customer.state = CustomerState.paid;
 		stateChanged();
-    }
-    
-    private void DoCalculateChange(MyCustomer customer) {
-    	print("Calculating change for " + customer.customer);
+	}
+
+	private void DoCalculateChange(MyCustomer customer) {
+		print("Calculating change for " + customer.customer);
 		double change = customer.money - DoCalculatePrice(customer.choice);
 		customer.customer.msgTakeYourChange(change);
 		customers.remove(customer);
 		stateChanged();
 	}
-	
+
 	private void DoTakeKidney(MyCustomer customer) {
 		print("Removing kidney from " + customer.customer);
 		customer.customer.removeKidney();
@@ -174,18 +177,22 @@ public class CashierAgent extends Agent {
 		stateChanged();
 	}
 
-    // *** EXTRA ***
+	// *** EXTRA ***
 
-    /** Returns the name of the market 
-     * @return name of market */
-    public String getName(){
-        return name;
-    }    
-    
-    //TODO: add an actual price calculation
-    private double DoCalculatePrice(String choice) {
+	/** Returns the name of the market 
+	 * @return name of market */
+	public String getName(){
+		return name;
+	}    
+
+	public String toString() {
+		return name;
+	}
+
+	//TODO: add an actual price calculation
+	private double DoCalculatePrice(String choice) {
 		double price = 50;
-	return price;
-}
+		return price;
+	}
 
 }

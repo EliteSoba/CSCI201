@@ -26,6 +26,18 @@ public class HostAgent extends Agent {
 			occupied = false;
 		}	
 	}
+	
+	private class MyCustomer{
+		public CustomerAgent customer;
+		public CustomerStatus state;
+		
+		public MyCustomer(CustomerAgent cust) {
+			customer = cust;
+			state = CustomerStatus.waiting;
+		}
+	}
+	
+	enum CustomerStatus {waiting};
 
 	/** Private class to hold waiter information and state */
 	private class MyWaiter {

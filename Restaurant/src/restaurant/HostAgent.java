@@ -131,6 +131,17 @@ public class HostAgent extends Agent {
 			}
 		}
 	}
+	
+	public void ImOffBreak(WaiterAgent waiter) {
+		print(waiter + " is now off break");
+		for (MyWaiter w:waiters) {
+			if (w.wtr.equals(waiter)) {
+				w.state = WaiterState.working;
+				stateChanged();
+				return;
+			}
+		}
+	}
 
 	/** The customer can't wait and leaves the restaurant
 	 * @param customer The customer that leaves

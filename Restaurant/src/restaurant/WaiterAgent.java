@@ -18,7 +18,7 @@ public class WaiterAgent extends Agent {
 	//State variables for Waiter
 	private BreakState breakstate = BreakState.working;
 
-	enum BreakState {working, breakRequested, breakPending, onBreak};
+	enum BreakState {working, breakRequested, breakPending, onBreak, broke};
 
 	//State constants for Customers
 
@@ -211,6 +211,7 @@ public class WaiterAgent extends Agent {
 	/** Allows the waiter to go on break - from host
 	 */
 	public void msgBreakApproved() {
+		print("My break was approved!");
 		breakstate = BreakState.onBreak;
 		stateChanged();
 	}
@@ -218,6 +219,7 @@ public class WaiterAgent extends Agent {
 	/** Disallows the waiter to go on break - from host
 	 */
 	public void msgBreakDenied() {
+		print("My break was denied...");
 		breakstate = BreakState.working;
 		stateChanged();
 	}
@@ -251,6 +253,7 @@ public class WaiterAgent extends Agent {
 	/** Host sends this to the waiter to end his break
 	 */
 	public void msgBreakTimesOver() {
+		print("Getting back to work...");
 		breakstate = BreakState.working;
 		stateChanged();
 	}
@@ -433,6 +436,8 @@ public class WaiterAgent extends Agent {
 	/** Alerts host of breakiness
 	 */
 	private void doGoOnBreak() {
+		print("Going on break now!");
+		breakstate = BreakState.broke;
 		host.ImOnBreakNow(this);
 	}
 
@@ -607,7 +612,7 @@ public class WaiterAgent extends Agent {
 
 	/** @return true if the waiter is on break, false otherwise */
 	public boolean isOnBreak(){
-		return breakstate == BreakState.onBreak;
+		return breakstate != BreakState.working;
 	}
 
 }

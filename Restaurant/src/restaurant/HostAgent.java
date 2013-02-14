@@ -191,8 +191,10 @@ public class HostAgent extends Agent {
 
 		for (MyWaiter w:waiters) {
 			if (w.state == WaiterState.onbreak) {
-				if (Math.random() <= 0.3)
+				if (Math.random() <= 0.3) {
 					w.wtr.msgBreakTimesOver(); //A hack to ensure they get back to work at some time
+					w.state = WaiterState.working;
+				}
 			}
 		}
 

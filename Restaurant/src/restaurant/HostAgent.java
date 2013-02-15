@@ -189,6 +189,8 @@ public class HostAgent extends Agent {
 			}
 		}
 
+		/*
+		 */ //<-- Remove this line if you want to manage all waiter breaks yourself. Alternatively, timers.
 		for (MyWaiter w:waiters) {
 			if (w.state == WaiterState.onbreak) {
 				if (Math.random() <= 0.3) {
@@ -196,7 +198,7 @@ public class HostAgent extends Agent {
 					w.state = WaiterState.working;
 				}
 			}
-		}
+		}/**/
 
 		//we have tried all our rules (in this case only one) and found
 		//nothing to do. So return false to main loop of abstract agent

@@ -26,18 +26,18 @@ public class HostAgent extends Agent {
 			occupied = false;
 		}	
 	}
-	
+
 	private class MyCustomer{
 		public CustomerAgent customer;
 		public CustomerStatus state;
-		
+
 		public MyCustomer(CustomerAgent cust) {
 			customer = cust;
-			state = CustomerStatus.waiting;
+			state = CustomerStatus.unknown;
 		}
 	}
-	
-	enum CustomerStatus {waiting};
+
+	enum CustomerStatus {unknown, waiting, hatesWaiting};
 
 	/** Private class to hold waiter information and state */
 	private class MyWaiter {
@@ -58,8 +58,8 @@ public class HostAgent extends Agent {
 
 
 	//List of all the customers that need a table
-	private List<CustomerAgent> waitList =
-			Collections.synchronizedList(new ArrayList<CustomerAgent>());
+	private List<MyCustomer> waitList =
+			Collections.synchronizedList(new ArrayList<MyCustomer>());
 
 	//List of all waiter that exist.
 	private List<MyWaiter> waiters =
@@ -92,7 +92,7 @@ public class HostAgent extends Agent {
 	 * @param customer customer that wants to be added */
 	public void msgIWantToEat(CustomerAgent customer){
 		print(customer + " wants to eat");
-		waitList.add(customer);
+		waitList.add(new MyCustomer(customer));
 		stateChanged();
 	}
 
@@ -131,7 +131,7 @@ public class HostAgent extends Agent {
 			}
 		}
 	}
-	
+
 	public void ImOffBreak(WaiterAgent waiter) {
 		print(waiter + " is now off break");
 		for (MyWaiter w:waiters) {
@@ -149,8 +149,14 @@ public class HostAgent extends Agent {
 	public void msgIHateWaiting(CustomerAgent customer) {
 		print(customer + " hates waiting");
 		//TODO: Synchronized error here
-		waitList.remove(customer);
-		stateChanged();
+		for (MyCustomer c:waitList) {
+			if (c.customer.equals(customer)) {
+				//waitList.remove(c);
+				c.state = CustomerStatus.hatesWaiting;
+				stateChanged();
+				return;
+			}
+		}
 	}
 
 	/** Scheduler.  Determine what action is called for, and do it. */
@@ -179,6 +185,19 @@ public class HostAgent extends Agent {
 				//Manage customers in waiting status
 				//waitList.get(0).msgYoullHaveToWait();
 				//return true;
+				for (MyCustomer c:waitList) {
+					if (c.state == CustomerStatus.hatesWaiting) {
+						print("Removing " + c.customer + " from the waitlist");
+						waitList.remove(c);
+						print(""+waitList.indexOf(c));
+						return true;
+					}
+					else if (c.state == CustomerStatus.unknown) {
+						c.customer.msgYoullHaveToWait();
+						c.state = CustomerStatus.waiting;
+						return true;
+					}
+				}
 			}
 		}
 
@@ -213,9 +232,9 @@ public class HostAgent extends Agent {
 	 * @param waiter
 	 * @param customer
 	 * @param tableNum */
-	private void tellWaiterToSitCustomerAtTable(MyWaiter waiter, CustomerAgent customer, int tableNum){
-		print("Telling " + waiter.wtr + " to sit " + customer +" at table "+(tableNum+1));
-		waiter.wtr.msgSitCustomerAtTable(customer, tableNum);
+	private void tellWaiterToSitCustomerAtTable(MyWaiter waiter, MyCustomer customer, int tableNum){
+		print("Telling " + waiter.wtr + " to sit " + customer.customer +" at table "+(tableNum+1));
+		waiter.wtr.msgSitCustomerAtTable(customer.customer, tableNum);
 		tables[tableNum].occupied = true;
 		waitList.remove(customer);
 		nextWaiter = (nextWaiter+1)%waiters.size();

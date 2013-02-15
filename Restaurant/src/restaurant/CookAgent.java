@@ -45,7 +45,7 @@ public class CookAgent extends Agent {
 		inventory.put("Pizza",new FoodData("Pizza", 3));
 		inventory.put("Salad",new FoodData("Salad", 2));
 	}
-	
+
 	enum MarketStatus {available, ordering, paying, paid, deadtome};
 	/** Private class to store market information.
 	 * Contains the market, status, and order info

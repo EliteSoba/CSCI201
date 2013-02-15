@@ -47,7 +47,7 @@ public class MarketAgent extends Agent {
 			tempo = new FoodData(temp[i], 0);
 			tempo.amount = 100;
 			inventory.put(temp[i], tempo);
-			
+
 		}
 
 	}

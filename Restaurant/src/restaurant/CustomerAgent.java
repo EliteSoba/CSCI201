@@ -260,7 +260,7 @@ public class CustomerAgent extends Agent {
 
 	/** Picks a random choice from the menu and sends it to the waiter */
 	private void orderFood(){
-		int choicenum = (int)Math.random()*menu.choices.length;
+		int choicenum = (int)(Math.random()*menu.choices.length);
 		String choice = menu.choices[choicenum];
 		for (int i = 0; money < menu.getPrice(choice) && !isLawbreaker; i++) {
 			if (i == menu.choices.length) {

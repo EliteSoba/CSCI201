@@ -56,7 +56,10 @@ public class ListPanel extends JPanel implements ActionListener{
 				if (lawbreaker == 2)
 					return;
 				String moneys = JOptionPane.showInputDialog("Please enter the amount of money for this customer:");
+				if (moneys == null)
+					return;
 				double money = Double.parseDouble(moneys);
+				System.out.println(money);
 				addCustomer(name, patient == 0, lawbreaker == 0, money);
 			}
 			else {

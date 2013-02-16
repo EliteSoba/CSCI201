@@ -447,6 +447,7 @@ public class WaiterAgent extends Agent {
 	 * @param customer the customer that needs to reorder
 	 */
 	private void doRequestReorder(MyCustomer customer) {
+		DoTakeOrder(customer);
 		customer.menu.removeItem(customer.choice);
 		customer.cmr.msgOrderAgain(customer.menu);
 		customer.state = CustomerState.NO_ACTION;

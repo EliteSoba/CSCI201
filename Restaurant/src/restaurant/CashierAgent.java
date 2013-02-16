@@ -11,7 +11,8 @@ import java.util.*;
  *  Interacts with customers and waiters.
  */
 public class CashierAgent extends Agent {
-
+	
+	Menu menu = new Menu();
 	/** Private class for storing customer data*/
 	private class MyCustomer {
 		public WaiterAgent waiter; //The waiter in charge of the customer
@@ -188,10 +189,8 @@ public class CashierAgent extends Agent {
 		return name;
 	}
 
-	//TODO: add an actual price calculation
 	private double DoCalculatePrice(String choice) {
-		double price = 50;
-		return price;
+		return menu.getPrice(choice);
 	}
 
 }

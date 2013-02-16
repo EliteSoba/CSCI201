@@ -69,7 +69,7 @@ public class CustomerAgent extends Agent {
 	}
 	/** Sent from GUI to set if the customer can break the law or not*/
 	public void setLawBreaker(boolean breaker) {
-		isLawbreaker = true;
+		isLawbreaker = breaker;
 	}
 	/** Waiter sends this message so the customer knows to sit down 
 	 * @param waiter the waiter that sent the message
@@ -262,7 +262,9 @@ public class CustomerAgent extends Agent {
 	private void orderFood(){
 		int choicenum = (int)(Math.random()*menu.choices.length);
 		String choice = menu.choices[choicenum];
+		print ("I am " + (isLawbreaker ? "":"not ") + "a lawbreaker");
 		for (int i = 0; money < menu.getPrice(choice) && !isLawbreaker; i++) {
+			print("I'm thinking about the " + choice);
 			if (i == menu.choices.length) {
 				leaveRestaurant(0);
 				return;
@@ -325,7 +327,9 @@ public class CustomerAgent extends Agent {
 		kidneys--;
 		//if (kidneys <= 0)
 		//do whatever
-		stateChanged();
+		
+		//stateChanged();
+		leaveRestaurant(0);
 	}
 
 	/** Reorders food if necessary*/

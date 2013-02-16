@@ -494,8 +494,10 @@ public class WaiterAgent extends Agent {
 	 * @param customer customer who needs removed from list */
 	private void endCustomer(MyCustomer customer){ 
 		print("Table " + (customer.tableNum+1) + " is cleared!");
-		if (customer.food != null)
+		restaurant.removeFood(tables[customer.tableNum].getX()+1, tables[customer.tableNum].getY()+1);
+		if (customer.food != null) {
 			customer.food.remove(); //remove the food from table animation
+		}
 		host.msgTableIsFree(customer.tableNum);
 		customers.remove(customer);
 		stateChanged();

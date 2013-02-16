@@ -20,6 +20,7 @@ public class CookAgent extends Agent {
 	private Map<String,FoodData> inventory = new HashMap<String,FoodData>();
 	public enum Status {pending, cooking, done}; // order status
 	private boolean needsRestock = false;
+	private boolean isReordering = false; //To ensure orders are requested one at a time. If I need one more reordering boolean, I'll change it to an enum, but for now, I believe this is sufficient
 
 	Set<MyMarket> markets = new HashSet<MyMarket>();
 	CashierAgent cashier;
@@ -113,6 +114,8 @@ public class CookAgent extends Agent {
 	/** Cook calls this when he is out of food.
 	 */
 	public void msgIAmOutOfInventory() {
+		if (isReordering)
+			return;
 		print("I am out of stock!");
 		needsRestock = true;
 		stateChanged();
@@ -156,6 +159,7 @@ public class CookAgent extends Agent {
 	 */
 	public void msgTakeMyFood(MarketAgent market, List<FoodData> curOrder) {
 		print(market + " is giving me food");
+		isReordering = false;
 		for (MyMarket m:markets) {
 			if (m.market.equals(market)) {
 				m.currentOrder = curOrder;
@@ -249,6 +253,7 @@ public class CookAgent extends Agent {
 	private void DoOrderFood() {
 		print("ordering food");
 		needsRestock = false;
+		isReordering = true;
 		List<FoodData> restock = new ArrayList<FoodData>();
 		for (String key:inventory.keySet()) {
 			FoodData f = inventory.get(key);

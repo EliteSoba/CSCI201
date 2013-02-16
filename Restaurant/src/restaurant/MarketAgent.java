@@ -170,8 +170,9 @@ public class MarketAgent extends Agent {
 	 */
 	double DoCalculatePrice(List<FoodData> currentOrder) {
 		double total = 0;
+		Menu menu = new Menu();
 		for (FoodData o:currentOrder)
-			total += 100 * o.amount;
+			total += (menu.getPrice(o.type)/2)* o.amount;
 		return total;
 	}
 

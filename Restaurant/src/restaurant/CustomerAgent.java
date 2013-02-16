@@ -110,8 +110,8 @@ public class CustomerAgent extends Agent {
 	public void msgHereIsBill(CashierAgent cashier, double bill) {
 		this.cashier = cashier;
 		this.bill = bill;
-		if (bill % 5 * 5 > money)
-			this.bill = bill % 5 * 5; //Pays with the nearest multiple of 5 if possible
+		if (Math.ceil(bill/5) * 5 > money)
+			this.bill = Math.ceil(bill/5) * 5; //Pays with the nearest multiple of 5 if possible
 		if (bill > money)
 			events.add(AgentEvent.gotUnpayableBill);
 		else

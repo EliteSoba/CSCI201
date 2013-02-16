@@ -104,7 +104,7 @@ public class RestaurantPanel extends JPanel {
 	cook.startThread();
 	cashier.startThread();
 	market1.startThread();
-	cook.addMarket(market1);
+	//cook.addMarket(market1);
 
 	setLayout(new GridLayout(1,2, 20,20));
 	group.setLayout(new GridLayout(1,2, 10,10));

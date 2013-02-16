@@ -13,7 +13,7 @@ package restaurant;
 		public FoodData(String type, double cookTime){
 			this.type = type;
 			this.cookTime = cookTime;
-			amount = 3;
+			amount = 0;
 		}
 	}
 

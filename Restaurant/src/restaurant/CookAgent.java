@@ -226,13 +226,15 @@ public class CookAgent extends Agent {
 	private void cookOrder(Order order){
 		if (inventory.get(order.choice).amount <= 0) {
 			order.waiter.msgOutOfStock(order.tableNum);
+			orders.remove(order);
 			return;
 		}
 		DoCooking(order);
 		order.status = Status.cooking;
 		inventory.get(order.choice).amount -= 1;
-		if (inventory.get(order.choice).amount <= 2)
+		if (inventory.get(order.choice).amount <= 2) {
 			this.msgIAmOutOfInventory();
+		}
 	}
 
 	private void placeOrder(Order order){

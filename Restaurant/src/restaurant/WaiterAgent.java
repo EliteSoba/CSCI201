@@ -166,6 +166,7 @@ public class WaiterAgent extends Agent {
 	public void msgLeaving(CustomerAgent customer, double tip) { //I LIKE TIPS
 		for (MyCustomer c:customers) {
 			if (c.cmr.equals(customer)) {
+				print(customer + " has left the building");
 				c.state = CustomerState.IS_DONE;
 				tipMoney += tip;
 				stateChanged();
@@ -243,6 +244,7 @@ public class WaiterAgent extends Agent {
 	public void msgOutOfStock(int tableNum) {
 		for (MyCustomer c:customers) {
 			if (c.tableNum == tableNum) {
+				print(c.cmr + " needs to reorder");
 				c.state = CustomerState.NEEDS_REORDER;
 				stateChanged();
 				return;
@@ -491,7 +493,8 @@ public class WaiterAgent extends Agent {
 	 * @param customer customer who needs removed from list */
 	private void endCustomer(MyCustomer customer){ 
 		print("Table " + (customer.tableNum+1) + " is cleared!");
-		customer.food.remove(); //remove the food from table animation
+		if (customer.food != null)
+			customer.food.remove(); //remove the food from table animation
 		host.msgTableIsFree(customer.tableNum);
 		customers.remove(customer);
 		stateChanged();

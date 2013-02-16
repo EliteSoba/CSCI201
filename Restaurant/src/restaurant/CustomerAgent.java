@@ -1,5 +1,6 @@
 package restaurant;
 
+import restaurant.WaiterAgent.CustomerState;
 import restaurant.gui.RestaurantGui;
 import restaurant.layoutGUI.*;
 import agent.Agent;
@@ -150,7 +151,7 @@ public class CustomerAgent extends Agent {
 	protected boolean pickAndExecuteAnAction() {
 		if (events.isEmpty()) return false;
 		AgentEvent event = events.remove(0); //pop first element
-
+		print(event.name());
 		//Simple finite state machine
 		if (state == AgentState.DoingNothing){
 			if (event == AgentEvent.gotHungry)	{
@@ -256,7 +257,8 @@ public class CustomerAgent extends Agent {
 
 	/** Picks a random choice from the menu and sends it to the waiter */
 	private void orderFood(){
-		String choice = menu.choices[(int)(Math.random()*4)];
+		//String choice = menu.choices[(int)(Math.random()*menu.choices.length)];
+		String choice = menu.choices[0];
 		print("Ordering the " + choice);
 		waiter.msgHereIsMyChoice(this, choice);
 		stateChanged();
@@ -293,6 +295,7 @@ public class CustomerAgent extends Agent {
 		if (waiter != null)
 			waiter.msgLeaving(this, tip);
 		isHungry = false;
+		state = AgentState.DoingNothing;
 		stateChanged();
 		gui.setCustomerEnabled(this); //Message to gui to enable hunger button
 
@@ -316,7 +319,7 @@ public class CustomerAgent extends Agent {
 
 	/** Reorders food if necessary*/
 	private void doReorderFood() {
-		if (Math.random() <= 0.5) {
+		if (Math.random() >= 1.0/(menu.choices.length+1)) {
 			orderFood();
 			stateChanged();
 		}

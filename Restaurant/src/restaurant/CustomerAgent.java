@@ -20,6 +20,7 @@ public class CustomerAgent extends Agent {
 	int kidneys = 2;
 	double change = 0;
 	boolean isLawbreaker = false;
+	boolean isPatient = true;
 	private RestaurantGui gui;
 
 	// ** Agent connections **
@@ -257,8 +258,10 @@ public class CustomerAgent extends Agent {
 
 	/** Picks a random choice from the menu and sends it to the waiter */
 	private void orderFood(){
-		//String choice = menu.choices[(int)(Math.random()*menu.choices.length)];
-		String choice = menu.choices[0];
+		String choice = menu.choices[(int)(Math.random()*menu.choices.length)];
+		while (money < menu.getPrice(choice) && !isLawbreaker)
+			choice = menu.choices[(int)(Math.random()*menu.choices.length)];
+		//String choice = menu.choices[0];
 		print("Ordering the " + choice);
 		waiter.msgHereIsMyChoice(this, choice);
 		stateChanged();
@@ -329,7 +332,8 @@ public class CustomerAgent extends Agent {
 	}
 
 	private void doProcessWaiting() {
-		if (Math.random() < 50.5) {
+		//if (Math.random() < 50.5) {
+		if (!isPatient) {
 			host.msgIHateWaiting(this);
 			leaveRestaurant(0);
 		}
@@ -392,6 +396,19 @@ public class CustomerAgent extends Agent {
 	/** @return the string representation of the class */
 	public String toString() {
 		return "customer " + getName();
+	}
+	 /** A hack to set the money of the customer
+	  * @param money the amount of money the customer has
+	  */
+	public void setMoney(double money) {
+		this.money = money;
+	}
+	
+	/** A hack to set the patience of the customer
+	 * @param patient if the customer is patient or not
+	 */
+	public void setPatient(boolean patient) {
+		this.isPatient = patient;
 	}
 
 

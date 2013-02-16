@@ -1,6 +1,7 @@
 package restaurant;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class Menu {
@@ -10,6 +11,15 @@ public class Menu {
 	  "Chicken", 
 	  "Salad"  , 
 	  "Pizza"  };
+    HashMap<String, Double> prices;
+    
+    public Menu() {
+    	prices = new HashMap<String, Double>();
+    	prices.put("Steak", 15.99);
+    	prices.put("Chicken", 10.99);
+    	prices.put("Salad", 5.99);
+    	prices.put("Pizza", 8.99);
+    }
     
     public void addItem(String item) {
     	String temp[] = new String[choices.length+1];
@@ -34,6 +44,12 @@ public class Menu {
     		temp2[i] = temp.get(i);
     	}
     	choices = temp2;
+    }
+    
+    public double getPrice(String item) {
+    	if (prices.containsKey(item))
+    		return prices.get(item);
+    	return 0;
     }
 
 }

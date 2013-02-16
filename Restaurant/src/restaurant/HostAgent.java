@@ -208,8 +208,7 @@ public class HostAgent extends Agent {
 			}
 		}
 
-		/*
-		 */ //<-- Remove this line if you want to manage all waiter breaks yourself. Alternatively, timers.
+		/*/<-- Remove the * if you want to manage all waiter breaks yourself. Alternatively, timers.
 		for (MyWaiter w:waiters) {
 			if (w.state == WaiterState.onbreak) {
 				if (Math.random() <= 0.3) {

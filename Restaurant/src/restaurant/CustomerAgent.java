@@ -110,6 +110,8 @@ public class CustomerAgent extends Agent {
 	public void msgHereIsBill(CashierAgent cashier, double bill) {
 		this.cashier = cashier;
 		this.bill = bill;
+		if (bill % 5 * 5 > money)
+			this.bill = bill % 5 * 5; //Pays with the nearest multiple of 5 if possible
 		if (bill > money)
 			events.add(AgentEvent.gotUnpayableBill);
 		else
@@ -258,9 +260,15 @@ public class CustomerAgent extends Agent {
 
 	/** Picks a random choice from the menu and sends it to the waiter */
 	private void orderFood(){
-		String choice = menu.choices[(int)(Math.random()*menu.choices.length)];
-		while (money < menu.getPrice(choice) && !isLawbreaker)
-			choice = menu.choices[(int)(Math.random()*menu.choices.length)];
+		int choicenum = (int)Math.random()*menu.choices.length;
+		String choice = menu.choices[choicenum];
+		for (int i = 0; money < menu.getPrice(choice) && !isLawbreaker; i++) {
+			if (i == menu.choices.length) {
+				leaveRestaurant(0);
+				return;
+			}
+			choice = menu.choices[(choicenum + i) % menu.choices.length];
+		}
 		//String choice = menu.choices[0];
 		print("Ordering the " + choice);
 		waiter.msgHereIsMyChoice(this, choice);

@@ -189,7 +189,6 @@ public class HostAgent extends Agent {
 					if (c.state == CustomerStatus.hatesWaiting) {
 						print("Removing " + c.customer + " from the waitlist");
 						waitList.remove(c);
-						print(""+waitList.indexOf(c));
 						return true;
 					}
 					else if (c.state == CustomerStatus.unknown) {

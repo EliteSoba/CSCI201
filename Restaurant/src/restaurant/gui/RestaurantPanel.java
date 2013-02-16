@@ -177,6 +177,23 @@ public class RestaurantPanel extends JPanel {
 	    w.startThread();
 	}
     }	
+    
+    /** Adds a customer with nonnormative specs
+     * @param name The name of the customer
+     * @param isPatient If the customer will wait when all tables are filled
+     * @param isLawbreaker If the customer will order food he can't pay for
+     * @param money The amount of money the customer has
+     */
+    public void addCustomer(String name, boolean isPatient, boolean isLawbreaker, double money) {
+    	CustomerAgent c = new CustomerAgent(name, gui, restaurant);
+    	c.setPatient(isPatient);
+    	c.setLawBreaker(isLawbreaker);
+    	c.setMoney(money);
+    	c.setHost(host);
+    	customers.add(c);
+    	c.startThread();
+    	c.setHungry();
+    }
 
 	public void addTable() {
 		int size = 3;

@@ -13,7 +13,7 @@ import java.io.File;
  * Contains the main frame and subsequent panels */
 public class RestaurantGui extends JFrame implements ActionListener{
 
-	private final int WINDOWX = 550;
+	private final int WINDOWX = 750;
 	private final int WINDOWY = 350;
 	
 	private RestaurantPanel restPanel = new RestaurantPanel(this);

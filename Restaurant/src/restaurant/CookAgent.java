@@ -22,6 +22,7 @@ public class CookAgent extends Agent {
 	private boolean needsRestock = false;
 	private boolean isReordering = false; //To ensure orders are requested one at a time. If I need one more reordering boolean, I'll change it to an enum, but for now, I believe this is sufficient
 
+	private boolean reordering = true; //To determine if the cook can reorder from markets or not. A hack for nonnormative demonstrations
 	Set<MyMarket> markets = new HashSet<MyMarket>();
 	CashierAgent cashier;
 
@@ -117,6 +118,8 @@ public class CookAgent extends Agent {
 		if (isReordering)
 			return;
 		print("I am out of stock!");
+		if (!reordering)
+			return;
 		needsRestock = true;
 		stateChanged();
 	}
@@ -228,6 +231,9 @@ public class CookAgent extends Agent {
 	 * @param order
 	 */
 	private void cookOrder(Order order){
+		if (inventory.get(order.choice).amount <= 2) {
+			this.msgIAmOutOfInventory();
+		}
 		if (inventory.get(order.choice).amount <= 0) {
 			order.waiter.msgOutOfStock(order.tableNum);
 			orders.remove(order);
@@ -236,9 +242,6 @@ public class CookAgent extends Agent {
 		DoCooking(order);
 		order.status = Status.cooking;
 		inventory.get(order.choice).amount -= 1;
-		if (inventory.get(order.choice).amount <= 2) {
-			this.msgIAmOutOfInventory();
-		}
 	}
 
 	private void placeOrder(Order order){
@@ -320,10 +323,17 @@ public class CookAgent extends Agent {
 		markets.add(new MyMarket(market));
 	}
 	
+	/** Another hack, this time to remove inventory*/
 	public void removeFood(String food) {
 		if (!inventory.containsKey(food))
 			return;
 		inventory.get(food).amount = 0;
+		print("Removing stock of " + food);
+	}
+	
+	/** Another hack, this time to decide if the cook can reorder from the market to demonstrate nonnormatives*/
+	public void setReordering(boolean reordering) {
+		this.reordering = reordering;
 	}
 }
 

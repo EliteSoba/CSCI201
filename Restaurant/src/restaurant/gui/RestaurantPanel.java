@@ -43,6 +43,7 @@ public class RestaurantPanel extends JPanel {
 	private ListPanel waiterPanel = new ListPanel(this, "Waiters");
 	private ListPanel marketPanel = new ListPanel(this, "Markets");
 	private JPanel group = new JPanel();
+	private CookPanel cookPanel = new CookPanel(cook);
 
 	private RestaurantGui gui; //reference to main gui
 
@@ -115,6 +116,7 @@ public class RestaurantPanel extends JPanel {
 		initRestLabel();
 		add(restLabel);
 		add(group);
+		add(cookPanel);
 	}
 
 	/** Sets up the restaurant label that includes the menu, 

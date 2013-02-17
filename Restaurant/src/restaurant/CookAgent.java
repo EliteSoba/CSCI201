@@ -202,12 +202,13 @@ public class CookAgent extends Agent {
 			}
 		}
 		
-		if (needsRestock) {
+		if (needsRestock && !markets.isEmpty()) {
 			DoOrderFood();
 			return true;
 		}
 		
 
+		if (!isReordering && !needsRestock)
 		doCheckStock(); //Nothing stops here, cook just makes a note to himself that he needs to reorder. Happens at all times the cook is awake, because this cook is responsible
 
 		//If there exists an order o whose status is done, place o.
@@ -321,6 +322,9 @@ public class CookAgent extends Agent {
 				return;
 			}
 		}
+		//If we get to this point, that means there are no markets.
+		print("found no markets to order from");
+		isReordering = false;
 	}
 
 	private void DoPurchaseFood(MyMarket m) {
@@ -391,6 +395,7 @@ public class CookAgent extends Agent {
 	/** A hack to add markets*/
 	public void addMarket(MarketAgent market) {
 		markets.add(new MyMarket(market));
+		stateChanged();
 	}
 	
 	/** Another hack, this time to remove inventory*/

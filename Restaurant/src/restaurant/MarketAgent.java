@@ -3,6 +3,8 @@ package restaurant;
 import agent.Agent;
 import java.util.*;
 
+import restaurant.CookAgent.Status;
+
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
  *  Keeps a list of all the waiters and tables.
@@ -29,6 +31,8 @@ public class MarketAgent extends Agent {
 	public enum CookStatus {nothing, ordering, paying, paid};
 	private MyCook cook;
 
+
+	Timer timer = new Timer();
 	Map<String, FoodData> inventory;
 
 	//Name of the market
@@ -145,11 +149,15 @@ public class MarketAgent extends Agent {
 	 *
 	 */
 	private void DoFulfilOrder() {
-		print("fulfilling order");
+		print("fulfilling order in 10000 ms");
 		cook.status = CookStatus.nothing;
-
-		cook.cook.msgTakeMyFood(this, cook.currentOrder);
-		stateChanged();
+		final MarketAgent temp = this;
+		timer.schedule(new TimerTask(){
+			public void run(){//this routine is like a message reception    
+				cook.cook.msgTakeMyFood(temp, cook.currentOrder);
+				stateChanged();
+			}
+		}, 10000);
 	}
 
 	// *** EXTRA ***

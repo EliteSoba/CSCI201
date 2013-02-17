@@ -38,7 +38,7 @@ public class CustomerAgent extends Agent {
 	//{NO_ACTION,NEED_SEATED,NEED_DECIDE,NEED_ORDER,NEED_EAT,NEED_LEAVE};
 	private AgentState state = AgentState.DoingNothing;//The start state
 	public enum AgentEvent 
-	{gotHungry, beingSeated, decidedChoice, waiterToTakeOrder, foodDelivered, doneEating, gotUnpayableBill, gotBill, gotChange, lostKidney, pleaseReorder, pleaseWait};
+	{gotHungry, beingSeated, decidedChoice, waiterToTakeOrder, foodDelivered, doneEating, gotUnpayableBill, gotBill, gotChange, lostKidney, pleaseReorder, pleaseWait, changedMind};
 	List<AgentEvent> events = new ArrayList<AgentEvent>();
 
 	/** Constructor for CustomerAgent class 
@@ -148,6 +148,11 @@ public class CustomerAgent extends Agent {
 		events.add(AgentEvent.pleaseWait);
 		stateChanged();
 	}
+	
+	public void changeMind() {
+		events.add(AgentEvent.changedMind);
+		stateChanged();
+	}
 
 
 	/** Scheduler.  Determine what action is called for, and do it. */
@@ -197,6 +202,10 @@ public class CustomerAgent extends Agent {
 			}
 			else if (event == AgentEvent.pleaseReorder) {
 				doReorderFood();
+				return true;
+			}
+			else if (event == AgentEvent.changedMind) {
+				doOrderAgain();
 				return true;
 			}
 		}
@@ -260,7 +269,8 @@ public class CustomerAgent extends Agent {
 
 	/** Picks a random choice from the menu and sends it to the waiter */
 	private void orderFood(){
-		int choicenum = (int)(Math.random()*menu.choices.length);
+		//int choicenum = (int)(Math.random()*menu.choices.length);
+		int choicenum = 0; //Removing randomness, customers prefer steak
 		String choice = menu.choices[choicenum];
 		print ("I am " + (isLawbreaker ? "":"not ") + "a lawbreaker");
 		for (int i = 0; money < menu.getPrice(choice) && !isLawbreaker; i++) {
@@ -342,6 +352,27 @@ public class CustomerAgent extends Agent {
 			leaveRestaurant(0);
 		}
 	}
+	/** The customer changes his mind about what he wants to eat
+	 * In this situation, the customer could order the same food again,
+	 * but this is acceptable enough, as we can pretend he's ordering
+	 * a different type of the same food, like a Rare steak over a
+	 * Medium-rare steak*/
+	private void doOrderAgain() {
+		print("I changed my mind!");
+		int choicenum = (int)(Math.random()*menu.choices.length);
+		String choice = menu.choices[choicenum];
+		for (int i = 0; money < menu.getPrice(choice) && !isLawbreaker; i++) {
+			if (i == menu.choices.length) {
+				leaveRestaurant(0);
+				return;
+			}
+			choice = menu.choices[(choicenum + i) % menu.choices.length];
+		}
+		//String choice = menu.choices[0];
+		print("Ordering the " + choice);
+		waiter.msgIChangedMyMind(this, choice);
+		stateChanged();
+	}
 
 	private void doProcessWaiting() {
 		//if (Math.random() < 50.5) {
@@ -421,6 +452,10 @@ public class CustomerAgent extends Agent {
 	 */
 	public void setPatient(boolean patient) {
 		this.isPatient = patient;
+	}
+	
+	public boolean getMindChangeable() {
+		return state == AgentState.WaitingForFood;
 	}
 
 

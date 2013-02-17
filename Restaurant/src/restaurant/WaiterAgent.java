@@ -23,7 +23,7 @@ public class WaiterAgent extends Agent {
 	//State constants for Customers
 
 	public enum CustomerState 
-	{NEED_SEATED, READY_TO_ORDER, ORDER_PENDING, ORDER_READY, NEEDS_REORDER, IS_DONE, PAYING, BILL_ARRIVED, NO_ACTION};
+	{NEED_SEATED, READY_TO_ORDER, ORDER_PENDING, ORDER_READY, NEEDS_REORDER, IS_DONE, PAYING, BILL_ARRIVED, MIND_CHANGED, MIND_CHANGE_APPROVED, NO_ACTION};
 
 	Timer timer = new Timer();
 
@@ -259,6 +259,37 @@ public class WaiterAgent extends Agent {
 		breakstate = BreakState.working;
 		stateChanged();
 	}
+	
+	public void msgIChangedMyMind(CustomerAgent cust, String choice) {
+		for (MyCustomer c:customers) {
+			if (c.cmr.equals(cust)) {
+				c.state = CustomerState.MIND_CHANGED;
+				c.choice = choice;
+				stateChanged();
+				return;
+			}
+		}
+	}
+	
+	public void msgMindChangeApproved(int tableNum) {
+		for (MyCustomer c:customers) {
+			if (c.tableNum == tableNum) {
+				c.state = CustomerState.MIND_CHANGE_APPROVED;
+				stateChanged();
+				return;
+			}
+		}
+	}
+	
+	public void msgIHaveNoIdeaWhatYoureTalkingAbout(int tableNum) {
+		for (MyCustomer c:customers) {
+			if (c.tableNum == tableNum) {
+				c.state = CustomerState.ORDER_PENDING;
+				stateChanged();
+				return;
+			}
+		}
+	}
 
 	/** Scheduler.  Determine what action is called for, and do it. */
 	protected boolean pickAndExecuteAnAction() {
@@ -273,6 +304,18 @@ public class WaiterAgent extends Agent {
 		if(!customers.isEmpty()){
 			//System.out.println("in scheduler, customers not empty:");
 			//Tells a customer his selection is out
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.MIND_CHANGED) {
+					doRequestChange(c);
+					return true;
+				}
+			}
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.MIND_CHANGE_APPROVED) {
+					doChangeOrder(c);
+					return true;
+				}
+			}
 			for (MyCustomer c:customers) {
 				if (c.state == CustomerState.NEEDS_REORDER) {
 					doRequestReorder(c);
@@ -393,6 +436,18 @@ public class WaiterAgent extends Agent {
 				tables[customer.tableNum].foodY(),
 				new Color(255, 255, 255), customer.choice.substring(0,2)+"?");
 	}
+	
+	private void doChangeOrder(MyCustomer customer) {
+		customer.state = CustomerState.NO_ACTION;
+		print(customer.cmr + " has successfully changed his order");
+		//Here's a little animation hack. We put the first two
+		//character of the food name affixed with a ? on the table.
+		//Simply let's us see what was ordered.
+		tables[customer.tableNum].takeOrder(customer.choice.substring(0,2)+"?");
+		restaurant.placeFood(tables[customer.tableNum].foodX(),
+				tables[customer.tableNum].foodY(),
+				new Color(255, 255, 255), customer.choice.substring(0,2)+"?");
+	}
 
 	/** Gives food to the customer 
 	 * @param customer customer whose food is ready */
@@ -450,6 +505,15 @@ public class WaiterAgent extends Agent {
 		DoTakeOrder(customer);
 		customer.menu.removeItem(customer.choice);
 		customer.cmr.msgOrderAgain(customer.menu);
+		customer.state = CustomerState.NO_ACTION;
+	}
+	
+	/** Requests cook to change the order of the customer
+	 * @param customer
+	 */
+	private void doRequestChange(MyCustomer customer) {
+		print("Checking with cook if reorder is acceptable");
+		cook.msgOrderChanged(this, customer.tableNum, customer.choice);
 		customer.state = CustomerState.NO_ACTION;
 	}
 

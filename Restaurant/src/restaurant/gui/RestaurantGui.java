@@ -13,7 +13,7 @@ import java.io.File;
  * Contains the main frame and subsequent panels */
 public class RestaurantGui extends JFrame implements ActionListener{
 
-	private final int WINDOWX = 750;
+	private final int WINDOWX = 800;
 	private final int WINDOWY = 350;
 	
 	private RestaurantPanel restPanel = new RestaurantPanel(this);
@@ -22,6 +22,7 @@ public class RestaurantGui extends JFrame implements ActionListener{
 			"<html><pre><i>(Click on a customer/waiter)</i></pre></html>");
 	private JCheckBox stateCB = new JCheckBox();
 	private JButton addTable = new JButton("Add Table");
+	private JButton changeMind = new JButton("Change Customer's Mind");
 
 	private Object currentPerson;
 
@@ -48,10 +49,14 @@ public class RestaurantGui extends JFrame implements ActionListener{
 
 		stateCB.setVisible(false);
 		stateCB.addActionListener(this);
+		
+		changeMind.setVisible(false);
+		changeMind.addActionListener(this);
 
 		infoPanel.setLayout(new GridLayout(1,2, 30,0));
 		infoPanel.add(infoLabel);
 		infoPanel.add(stateCB);
+		infoPanel.add(changeMind);
 
 		getContentPane().add(restPanel);
 		getContentPane().add(addTable);
@@ -66,10 +71,13 @@ public class RestaurantGui extends JFrame implements ActionListener{
 	 * @param person customer or waiter object */
 	public void updateInfoPanel(Object person){
 		stateCB.setVisible(true);
+		changeMind.setVisible(false);
 		currentPerson = person;
 
 		if(person instanceof CustomerAgent){
+			changeMind.setVisible(true);
 			CustomerAgent customer = (CustomerAgent) person;
+			changeMind.setEnabled(customer.getMindChangeable());
 			stateCB.setText("Hungry?");
 			stateCB.setSelected(customer.isHungry());
 			stateCB.setEnabled(!customer.isHungry());
@@ -127,6 +135,10 @@ public class RestaurantGui extends JFrame implements ActionListener{
 			catch(Exception ex) {
 				System.out.println("Unexpected exception caught in during setup:"+ ex);
 			}
+		}
+		else if (e.getSource() == changeMind) {
+			CustomerAgent cust = (CustomerAgent)currentPerson;
+			cust.changeMind();
 		}
 
 	}

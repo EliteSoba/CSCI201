@@ -17,8 +17,9 @@ public class CookAgent extends Agent {
 
 	//List of all the orders
 	private List<Order> orders = new ArrayList<Order>();
+	private List<Order> changedOrders = new ArrayList<Order>();
 	private Map<String,FoodData> inventory = new HashMap<String,FoodData>();
-	public enum Status {pending, cooking, done}; // order status
+	public enum Status {pending, preparing, prepared, cooking, done}; // order status
 	private boolean needsRestock = false;
 	private boolean isReordering = false; //To ensure orders are requested one at a time. If I need one more reordering boolean, I'll change it to an enum, but for now, I believe this is sufficient
 
@@ -172,11 +173,22 @@ public class CookAgent extends Agent {
 			}
 		}
 	}
+	
+	public void msgOrderChanged(WaiterAgent waiter, int tableNum, String choice) {
+		changedOrders.add(new Order(waiter, tableNum, choice));
+		stateChanged();
+	}
 
 
 	/** Scheduler.  Determine what action is called for, and do it. */
 	protected boolean pickAndExecuteAnAction() {
 
+		doCheckStock(); //Nothing stops here, cook just makes a note to himself that he needs to reorder. Happens at all times the cook is awake, because this cook is responsible
+		
+		if (!changedOrders.isEmpty()) {
+			doCheckReorder(changedOrders.remove(0));
+		}
+		
 		if (needsRestock) {
 			DoOrderFood();
 			return true;
@@ -191,8 +203,15 @@ public class CookAgent extends Agent {
 		}
 		//If there exists an order o whose status is pending, cook o.
 		for(Order o:orders){
-			if(o.status == Status.pending){
+			if(o.status == Status.prepared){
 				cookOrder(o);
+				return true;
+			}
+		}
+		
+		for(Order o:orders) {
+			if (o.status == Status.pending) {
+				prepareOrder(o);
 				return true;
 			}
 		}
@@ -243,6 +262,31 @@ public class CookAgent extends Agent {
 		order.status = Status.cooking;
 		inventory.get(order.choice).amount -= 1;
 	}
+	
+	/** Takes some time to prepare the order so that the customer can change his mind
+	 * @param order
+	 */
+	private void prepareOrder(final Order order) {
+		order.status = Status.preparing;
+		print("Preparing the order (Customer can change his mind at this time)");
+		timer.schedule(new TimerTask(){
+			public void run(){//this routine is like a message reception    
+				order.status = Status.prepared;
+				stateChanged();
+			}
+		}, 3000);
+	}
+	
+	/** The cook is always checking his stock.
+	 */
+	private void doCheckStock() {
+		for (String key:inventory.keySet()) {
+			if (inventory.get(key).amount <= 2) {
+				this.msgIAmOutOfInventory();
+				return;
+			}
+		}
+	}
 
 	private void placeOrder(Order order){
 		DoPlacement(order);
@@ -287,6 +331,27 @@ public class CookAgent extends Agent {
 			inventory.get(f.type).amount += f.amount;
 		m.status = MarketStatus.available;
 	}
+	
+	private void doCheckReorder(Order order) {
+		print("Checking if order is already cooking");
+		for (Order o:orders) {
+			if (o.tableNum == order.tableNum) {
+				if (o.status == Status.pending || o.status == Status.preparing) {
+					print("Order successfully changed");
+					o.choice = order.choice;
+					o.waiter.msgMindChangeApproved(o.tableNum);
+				}
+				else {
+					print("Order is already cooking. Too bad!");
+				}
+				stateChanged();
+				return;
+			}
+		}
+		print("Order not found");
+		order.waiter.msgIHaveNoIdeaWhatYoureTalkingAbout(order.tableNum);
+		stateChanged();
+	}
 
 
 	// *** EXTRA -- all the simulation routines***
@@ -329,6 +394,7 @@ public class CookAgent extends Agent {
 			return;
 		inventory.get(food).amount = 0;
 		print("Removing stock of " + food);
+		stateChanged();
 	}
 	
 	/** Another hack, this time to decide if the cook can reorder from the market to demonstrate nonnormatives*/

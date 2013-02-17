@@ -60,6 +60,7 @@ public class MarketAgent extends Agent {
 	 * @param amounts the list of amounts of foods
 	 */
 	public void msgINeedFood(CookAgent cook, List<FoodData> currentOrder) {
+		this.cook.currentOrder = new ArrayList<FoodData>();
 		print(cook + " needs food!");
 		this.cook.cook = cook;
 		for (int i = 0; i < currentOrder.size(); i++) {

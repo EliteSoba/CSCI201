@@ -183,16 +183,32 @@ public class CookAgent extends Agent {
 	/** Scheduler.  Determine what action is called for, and do it. */
 	protected boolean pickAndExecuteAnAction() {
 
-		doCheckStock(); //Nothing stops here, cook just makes a note to himself that he needs to reorder. Happens at all times the cook is awake, because this cook is responsible
 		
 		if (!changedOrders.isEmpty()) {
 			doCheckReorder(changedOrders.remove(0));
+		}
+		
+		for (MyMarket m:markets) {
+			if (m.status == MarketStatus.ordering) {
+				DoPurchaseFood(m);
+				return true;
+			}
+		}
+
+		for (MyMarket m:markets) {
+			if (m.status == MarketStatus.paid) {
+				DoStockFood(m);
+				return true;
+			}
 		}
 		
 		if (needsRestock) {
 			DoOrderFood();
 			return true;
 		}
+		
+
+		doCheckStock(); //Nothing stops here, cook just makes a note to himself that he needs to reorder. Happens at all times the cook is awake, because this cook is responsible
 
 		//If there exists an order o whose status is done, place o.
 		for(Order o:orders){
@@ -223,19 +239,7 @@ public class CookAgent extends Agent {
 		}
 	}*/
 
-		for (MyMarket m:markets) {
-			if (m.status == MarketStatus.ordering) {
-				DoPurchaseFood(m);
-				return true;
-			}
-		}
-
-		for (MyMarket m:markets) {
-			if (m.status == MarketStatus.paid) {
-				DoStockFood(m);
-				return true;
-			}
-		}
+		
 
 		//we have tried all our rules (in this case only one) and found
 		//nothing to do. So return false to main loop of abstract agent
@@ -327,6 +331,7 @@ public class CookAgent extends Agent {
 
 	private void DoStockFood(MyMarket m) {
 		print("stocking food");
+		needsRestock = false;
 		for (FoodData f:m.currentOrder)
 			inventory.get(f.type).amount += f.amount;
 		m.status = MarketStatus.available;

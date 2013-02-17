@@ -175,5 +175,18 @@ public class MarketAgent extends Agent {
 			total += (menu.getPrice(o.type)/2)* o.amount;
 		return total;
 	}
+	/** A GUI hack to remove all food from the market*/
+	public void goOutOfStock() {
+		print("Going out of stock!");
+		for (String food: inventory.keySet())
+			inventory.get(food).amount = 0;
+	}
+	
+	public boolean isOutOfStock() {
+		for (String food:inventory.keySet())
+			if (inventory.get(food).amount != 0)
+				return false;
+		return true;
+	}
 
 }

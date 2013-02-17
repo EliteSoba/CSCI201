@@ -85,12 +85,12 @@ public class ListPanel extends JPanel implements ActionListener{
 		if(name != null){
 			try {
 				String c;
-				if (type.equals("Waiters")) c="w"; else c="c"; 
+				if (type.equals("Waiters")) c="w"; else if (type.equals("Markets")) c="m"; else c="c"; 
 				int n = Integer.valueOf( name ).intValue();
 				for (int i=1; i<=n; i++) createIt(c+i);
 			}
 			catch (NumberFormatException e) {
-				//createIt(name);
+				createIt(name);
 			}
 		}
 	}

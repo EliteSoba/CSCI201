@@ -319,6 +319,12 @@ public class CookAgent extends Agent {
 	public void addMarket(MarketAgent market) {
 		markets.add(new MyMarket(market));
 	}
+	
+	public void removeFood(String food) {
+		if (!inventory.containsKey(food))
+			return;
+		inventory.get(food).amount = 0;
+	}
 }
 
 

@@ -1,7 +1,6 @@
 package restaurant.gui;
 
-import restaurant.CustomerAgent;
-import restaurant.WaiterAgent;
+import restaurant.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,9 +13,9 @@ import java.io.File;
  * Contains the main frame and subsequent panels */
 public class RestaurantGui extends JFrame implements ActionListener{
 
-	private final int WINDOWX = 450;
+	private final int WINDOWX = 550;
 	private final int WINDOWY = 350;
-
+	
 	private RestaurantPanel restPanel = new RestaurantPanel(this);
 	private JPanel infoPanel = new JPanel();
 	private JLabel infoLabel = new JLabel(
@@ -34,7 +33,7 @@ public class RestaurantGui extends JFrame implements ActionListener{
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(50,50, WINDOWX, WINDOWY);
-
+		
 		getContentPane().setLayout(new BoxLayout((Container)getContentPane(),BoxLayout.Y_AXIS));
 
 		Dimension rest = new Dimension(WINDOWX, (int)(WINDOWY*.6));
@@ -84,7 +83,15 @@ public class RestaurantGui extends JFrame implements ActionListener{
 			stateCB.setEnabled(true);
 			infoLabel.setText(
 					"<html><pre>     Name: " + waiter.getName() + " </html>");
-		}	   
+		}
+		else if (person instanceof MarketAgent) {
+			MarketAgent market = (MarketAgent) person;
+			stateCB.setText("Out of stock?");
+			stateCB.setSelected(market.isOutOfStock());
+			stateCB.setEnabled(true);
+			infoLabel.setText(
+					"<html><pre>     Name: " + market.getName() + " </html>");
+		}
 
 		infoPanel.validate();
 	}
@@ -101,6 +108,9 @@ public class RestaurantGui extends JFrame implements ActionListener{
 			}else if(currentPerson instanceof WaiterAgent){
 				WaiterAgent w = (WaiterAgent) currentPerson;
 				w.setBreakStatus(stateCB.isSelected());
+			}else if (currentPerson instanceof MarketAgent) {
+				MarketAgent m = (MarketAgent) currentPerson;
+				m.goOutOfStock();
 			}
 		}
 		else if (e.getSource() == addTable)

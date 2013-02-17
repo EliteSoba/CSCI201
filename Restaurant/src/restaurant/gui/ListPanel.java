@@ -47,6 +47,8 @@ public class ListPanel extends JPanel implements ActionListener{
 
 		if(e.getSource() == addPersonB) {
 			String name = JOptionPane.showInputDialog("Please enter a name:");
+			if (name == null)
+				return;
 			//addPerson(JOptionPane.showInputDialog("Please enter a name:"));
 			if (type.equalsIgnoreCase("customers")) {
 				int patient = JOptionPane.showConfirmDialog(this, "Do you want this customer to wait if all tables are filled?");

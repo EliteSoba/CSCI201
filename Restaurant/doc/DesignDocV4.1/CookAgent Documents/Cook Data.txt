@@ -1,0 +1,31 @@
+Cook Data
+
+List<Order> orders
+Map<String, FoodData> inventory
+enum Status {pending, cooking, done} //order status
+
+List<MyMarket> markets //Set
+enum MarketStatus {available, ordering, paying, paid, deadtome}
+Cashier cashier
+
+String name
+
+class FoodData {
+	String type
+	double cookTime
+	int amount
+}
+
+class Order{
+	Waiter waiter
+	int table
+	String choice
+	Status status
+}
+
+class MyMarket{
+	Market market
+	MarketStatus status
+	List<FoodData> currentOrder
+	int currentOrderCost
+}

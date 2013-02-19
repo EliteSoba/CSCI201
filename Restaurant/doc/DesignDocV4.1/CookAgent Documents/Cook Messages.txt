@@ -1,0 +1,24 @@
+Cook Messages
+
+msgHereIsAnOrder(Waiter w, int table, String choice) {
+	orders.add(new Order(w, table, choice));
+}
+
+msgIHaveNoFood(Market m) {
+	markets.status = deadtome
+	//Market is dead to cook if they can't fulfil an order, even though they might have a stock of other foods, so as to avoid constantly requesting a food they don't have
+}
+
+
+//List<FoodData> curorder is sent around because what the cook wants is not necessarily what the market has, nor is it necessarily what the restaurant can afford
+
+msgHereIsPrice(Market m, int price, List<FoodData> curorder) {
+	markets.get(m).currentOrder = curorder
+	markets.get(m).currentOrderCost = price
+	markets.get(m).status = ordering
+}
+
+msgTakeMyFood(Market m, List<FoodData> curorder) {
+	markets.get(m).currentOrder = curorder
+	markets.get(m).paid;
+}

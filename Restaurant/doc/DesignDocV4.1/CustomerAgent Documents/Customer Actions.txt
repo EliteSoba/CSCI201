@@ -1,0 +1,72 @@
+Customer Actions
+
+//Some of these actions will have gui things that are not included here because they are implementation things, not really design stuff
+goingToRestaurant() {
+	host.msgIWantToEat(this)
+}
+
+makeMenuChoice() {
+	//Wait some time
+	msgDecided()
+}
+
+callWaiter() {
+	waiter.msgImReadyToOrder(this)
+}
+
+orderFood() {
+	if (! exist choice in menu such that choice.price < money && !isLawBreaker) {
+		waiter.msgDoneEatingAndLeaving(0) //Just leaves with no tip
+	}
+	else {
+		choice = //choice from menu. Randomly picked among what he can afford
+		waiter.msgHereIsMyChoice(this, choice)
+	}
+}
+
+eatFood() {
+	//Wait some time
+	msgDoneEating()
+}
+
+doneEating() {
+	waiter.msgDoneEating()
+}
+
+doPayBill() {
+	money -= bill //Replace bill with a number between bill and money if desired (ex: paying for a $17 meal with a $20 bill
+	cashier.msgTakeMyMoney(this, bill)
+}
+
+leaveRestaurant() {
+	int tip = //insert tip here if you want
+	money -= tip
+	waiter.msgDoneEatingAndLeaving(tip)
+	isHungry = false
+}
+
+doICantPay() {
+	cashier.msgICantPay(this)
+}
+
+doLoseKidney() {
+	kidneys--
+	if (kidneys = 0)
+		this.delete() //Unactivate customer
+}
+
+doReorderFood() {
+	if (Random.nextInt(2) == 1) { //50% chance of reordering. Feel free to change percentages based on remaining menu items, etc.
+		orderFood()
+	}
+	else {
+		waiter.msgDoneEatingAndLeaving(0)
+	}
+}
+
+doProcessWaiting() {
+	if (Math.Random() > 0.5)
+		host.msgIHateWaiting()
+	else
+		state = WaitingInRestaurant
+}

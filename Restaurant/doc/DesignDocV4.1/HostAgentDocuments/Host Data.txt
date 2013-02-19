@@ -1,0 +1,24 @@
+Host Data
+
+class Table {
+	int tableNum
+	boolean occupied
+}
+
+class MyWaiter {
+	Waiter wtr
+	WaiterState state = working
+}
+
+enum WaiterState = {working, breakrequested, breakapproved, onbreak) //A change from the boolean because I don't want to take a waiter off break before they actually get on break because they're busy waiting customers
+//Although it's not in the requirements, but I want to be a nice employer
+
+List<Customer> waitList
+List<MyWaiter> waiters
+int nextWaiter
+
+int nTables
+Table tables[]
+
+String name
+

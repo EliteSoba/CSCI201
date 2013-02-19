@@ -1,0 +1,14 @@
+Market Messages
+
+msgINeedFood(Cook cook, List <FoodData> order) {
+	cook.cook = cook //Warning: High risk of semantic satiation
+	cook.status = ordering
+	cook.currentOrder = order
+}
+
+msgTakeMyMoney(Cashier cashier, int price, List<FoodData> order) {
+	//We assume that the price is sufficient for the order they pass us
+	//No requirements to assume otherwise, and if they don't, it gets too complex
+	cook.status = paid
+	cook.currentOrder = order
+}

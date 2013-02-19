@@ -405,7 +405,7 @@ public class Restaurant extends JFrame implements MouseListener
         catch(Exception e) {}
     }
     
-    protected void removeFood(int x, int y)
+    public void removeFood(int x, int y)
     {
         buttons[x-1][y-1].setForeground(buttons[x-1][y-1].getBackground());
         buttons[x-1][y-1].setText(defaultText);

@@ -1,0 +1,21 @@
+Market Data
+
+MyCook cook //Markets should be able to supply multiple restaurants, but we're only concerned about our own restaurant with this simulation
+
+class FoodData { //Using Cook's FoodData for easier transportation, despite unnecessary cookTime element
+	String type
+	double cookTime
+	int amount
+}
+
+
+Map<String, FoodData> inventory
+
+class MyCook {
+	Cook cook
+	CookStatus status
+	List<FoodData> currentOrder
+	int currentOrderCost
+}
+
+enum CookStatus {nothing, ordering, paying, paid}

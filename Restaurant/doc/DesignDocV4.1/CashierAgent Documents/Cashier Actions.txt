@@ -1,0 +1,36 @@
+Cashier Actions
+
+DoCalculateBill(MyCustomer customer) {
+	int bill = DoCalculatePrice(customer.choice)
+	customer.waiter.msgHereIsBill(customer.customer, bill)
+	customer.state = paid
+}
+
+int DoCalculatePrice(String choice) {
+	//Calculate price of choice here
+	return price;
+}
+
+DoCalculateChange(MyCustomer customer) {
+	int change = customer.money - DoCalculatePrice(customer.choice)
+	customer.msgTakeYourChange(change)
+	customers.remove(customer)
+}
+
+DoTakeKidney(MyCustomer customer) {
+	customer.removeKidney();
+	kidneys++;
+	customer.waiter.msgCustomerPaidWithBody(customer.customer)
+	customers.remove(customer)
+}
+
+DoProcessOrders(Order order) {
+	if (order.cost > funds) {//If too expensive, orders nothing. If desired, an algorithm to remove certain foods from the order could be used
+		order.market.msgTakeMyMoney(this, 0, new List<FoodData>())
+		orders.remove(order)
+	}
+	else {
+		order.market.msgTakeMyMoney(this, order.cost, order.food)
+		orders.remove(order)
+	}
+}

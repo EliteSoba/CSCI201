@@ -55,7 +55,7 @@ public class WaiterAgent extends Agent {
 	double tipMoney = 0;
 
 	//All the customers that this waiter is serving
-	private List<MyCustomer> customers = new ArrayList<MyCustomer>();
+	private List<MyCustomer> customers = Collections.synchronizedList(new ArrayList<MyCustomer>());
 
 	private HostAgent host;
 	private CookAgent cook;

@@ -48,7 +48,7 @@ public class MarketAgent extends Agent {
 	public MarketAgent(String name) {
 		super();
 		this.name = name;
-		cooks = new ArrayList<MyCook>();
+		cooks = Collections.synchronizedList(new ArrayList<MyCook>());
 		inventory = new HashMap<String, FoodData>();
 		String[] temp = new Menu().choices;
 		FoodData tempo;

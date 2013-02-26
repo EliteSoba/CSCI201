@@ -186,6 +186,7 @@ public class RestaurantPanel extends JPanel {
 		} else if(type.equals("Markets")){
 			MarketAgent m = new MarketAgent(name);
 			markets.add(m);
+			m.setCook(cook);
 			m.startThread();
 			cook.addMarket(m);
 		}

@@ -1,9 +1,9 @@
 package restaurant;
 
 import agent.Agent;
-import java.util.Timer;
-import java.util.TimerTask;
+
 import java.util.*;
+
 import restaurant.layoutGUI.*;
 import java.awt.Color;
 
@@ -16,15 +16,15 @@ import java.awt.Color;
 public class CookAgent extends Agent {
 
 	//List of all the orders
-	private List<Order> orders = new ArrayList<Order>();
-	private List<Order> changedOrders = new ArrayList<Order>();
-	private Map<String,FoodData> inventory = new HashMap<String,FoodData>();
+	private List<Order> orders = Collections.synchronizedList(new ArrayList<Order>());
+	private List<Order> changedOrders = Collections.synchronizedList(new ArrayList<Order>());
+	private Map<String,FoodData> inventory = Collections.synchronizedMap(new HashMap<String,FoodData>());
 	public enum Status {pending, preparing, prepared, cooking, done}; // order status
 	private boolean needsRestock = false;
 	private boolean isReordering = false; //To ensure orders are requested one at a time. If I need one more reordering boolean, I'll change it to an enum, but for now, I believe this is sufficient
 
 	private boolean reordering = true; //To determine if the cook can reorder from markets or not. A hack for nonnormative demonstrations
-	Set<MyMarket> markets = new HashSet<MyMarket>();
+	Set<MyMarket> markets = Collections.synchronizedSet(new HashSet<MyMarket>());
 	CashierAgent cashier;
 
 	//Name of the cook

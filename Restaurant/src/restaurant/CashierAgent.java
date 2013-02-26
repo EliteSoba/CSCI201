@@ -62,9 +62,9 @@ public class CashierAgent extends Agent {
 		super();
 		this.name = name;
 		funds = 100000;
-		customers = new ArrayList<MyCustomer>();
+		customers = Collections.synchronizedList(new ArrayList<MyCustomer>());
 		kidneys = 0;
-		cookOrders = new ArrayList<Order>();
+		cookOrders = Collections.synchronizedList(new ArrayList<Order>());
 	}
 
 	// *** MESSAGES ***

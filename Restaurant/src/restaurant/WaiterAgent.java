@@ -106,12 +106,14 @@ public class WaiterAgent extends Agent {
 	 */
 	public void msgImReadyToOrder(CustomerAgent customer){
 		//print("received msgImReadyToOrder from:"+customer);
-		for(int i=0; i < customers.size(); i++){
-			//if(customers.get(i).cmr.equals(customer)){
-			if (customers.get(i).cmr == customer){
-				customers.get(i).state = CustomerState.READY_TO_ORDER;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for(int i=0; i < customers.size(); i++){
+				//if(customers.get(i).cmr.equals(customer)){
+				if (customers.get(i).cmr == customer){
+					customers.get(i).state = CustomerState.READY_TO_ORDER;
+					stateChanged();
+					return;
+				}
 			}
 		}
 		System.out.println("msgImReadyToOrder in WaiterAgent, didn't find him?");
@@ -121,12 +123,14 @@ public class WaiterAgent extends Agent {
 	 * @param customer customer who has decided their choice
 	 * @param choice the food item that the customer chose */
 	public void msgHereIsMyChoice(CustomerAgent customer, String choice){
-		for(MyCustomer c:customers){
-			if(c.cmr.equals(customer)){
-				c.choice = choice;
-				c.state = CustomerState.ORDER_PENDING;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for(MyCustomer c:customers){
+				if(c.cmr.equals(customer)){
+					c.choice = choice;
+					c.state = CustomerState.ORDER_PENDING;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -135,12 +139,14 @@ public class WaiterAgent extends Agent {
 	 * @param tableNum identification number of table whose food is ready
 	 * @param f is the guiFood object */
 	public void msgOrderIsReady(int tableNum, Food f){
-		for(MyCustomer c:customers){
-			if(c.tableNum == tableNum){
-				c.state = CustomerState.ORDER_READY;
-				c.food = f; //so that later we can remove it from the table.
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for(MyCustomer c:customers){
+				if(c.tableNum == tableNum){
+					c.state = CustomerState.ORDER_READY;
+					c.food = f; //so that later we can remove it from the table.
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -149,12 +155,14 @@ public class WaiterAgent extends Agent {
 	 * @param customer customer who is done eating. */
 	public void msgDoneEating(CustomerAgent customer){
 		print(customer + " finished eating");
-		for(MyCustomer c:customers){
-			if(c.cmr.equals(customer)){
-				c.state = CustomerState.PAYING;
-				print("I found the customer");
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for(MyCustomer c:customers){
+				if(c.cmr.equals(customer)){
+					c.state = CustomerState.PAYING;
+					print("I found the customer");
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -164,13 +172,15 @@ public class WaiterAgent extends Agent {
 	 * @param tip The tip for the waiter
 	 */
 	public void msgLeaving(CustomerAgent customer, double tip) { //I LIKE TIPS
-		for (MyCustomer c:customers) {
-			if (c.cmr.equals(customer)) {
-				print(customer + " has left the building");
-				c.state = CustomerState.IS_DONE;
-				tipMoney += tip;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.cmr.equals(customer)) {
+					print(customer + " has left the building");
+					c.state = CustomerState.IS_DONE;
+					tipMoney += tip;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -180,12 +190,14 @@ public class WaiterAgent extends Agent {
 	 * @param bill the bill
 	 */
 	public void msgHereIsBill(CustomerAgent customer, double bill) {
-		for (MyCustomer c:customers) {
-			if (c.cmr.equals(customer)) {
-				c.state = CustomerState.BILL_ARRIVED;
-				c.bill = bill;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.cmr.equals(customer)) {
+					c.state = CustomerState.BILL_ARRIVED;
+					c.bill = bill;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -229,11 +241,13 @@ public class WaiterAgent extends Agent {
 	 * @param customer The customer that left
 	 */
 	public void msgCustomerPaidWithBody(CustomerAgent customer) {
-		for (MyCustomer c:customers) {
-			if (c.cmr.equals(customer)) {
-				c.state = CustomerState.IS_DONE;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.cmr.equals(customer)) {
+					c.state = CustomerState.IS_DONE;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -242,12 +256,14 @@ public class WaiterAgent extends Agent {
 	 * @param tableNum the table of the customer whose order is out of stock
 	 */
 	public void msgOutOfStock(int tableNum) {
-		for (MyCustomer c:customers) {
-			if (c.tableNum == tableNum) {
-				print(c.cmr + " needs to reorder");
-				c.state = CustomerState.NEEDS_REORDER;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.tableNum == tableNum) {
+					print(c.cmr + " needs to reorder");
+					c.state = CustomerState.NEEDS_REORDER;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -259,34 +275,40 @@ public class WaiterAgent extends Agent {
 		breakstate = BreakState.working;
 		stateChanged();
 	}
-	
+
 	public void msgIChangedMyMind(CustomerAgent cust, String choice) {
-		for (MyCustomer c:customers) {
-			if (c.cmr.equals(cust)) {
-				c.state = CustomerState.MIND_CHANGED;
-				c.choice = choice;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.cmr.equals(cust)) {
+					c.state = CustomerState.MIND_CHANGED;
+					c.choice = choice;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
-	
+
 	public void msgMindChangeApproved(int tableNum) {
-		for (MyCustomer c:customers) {
-			if (c.tableNum == tableNum) {
-				c.state = CustomerState.MIND_CHANGE_APPROVED;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.tableNum == tableNum) {
+					c.state = CustomerState.MIND_CHANGE_APPROVED;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
-	
+
 	public void msgIHaveNoIdeaWhatYoureTalkingAbout(int tableNum) {
-		for (MyCustomer c:customers) {
-			if (c.tableNum == tableNum) {
-				c.state = CustomerState.ORDER_PENDING;
-				stateChanged();
-				return;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.tableNum == tableNum) {
+					c.state = CustomerState.ORDER_PENDING;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -302,79 +324,81 @@ public class WaiterAgent extends Agent {
 		//Runs through the customers for each rule, so 
 		//the waiter doesn't serve only one customer at a time
 		if(!customers.isEmpty()){
-			//System.out.println("in scheduler, customers not empty:");
-			//Tells a customer his selection is out
-			for (MyCustomer c:customers) {
-				if (c.state == CustomerState.MIND_CHANGED) {
-					doRequestChange(c);
-					return true;
+			synchronized (customers) {
+				//System.out.println("in scheduler, customers not empty:");
+				//Tells a customer his selection is out
+				for (MyCustomer c:customers) {
+					if (c.state == CustomerState.MIND_CHANGED) {
+						doRequestChange(c);
+						return true;
+					}
 				}
-			}
-			for (MyCustomer c:customers) {
-				if (c.state == CustomerState.MIND_CHANGE_APPROVED) {
-					doChangeOrder(c);
-					return true;
+				for (MyCustomer c:customers) {
+					if (c.state == CustomerState.MIND_CHANGE_APPROVED) {
+						doChangeOrder(c);
+						return true;
+					}
 				}
-			}
-			for (MyCustomer c:customers) {
-				if (c.state == CustomerState.NEEDS_REORDER) {
-					doRequestReorder(c);
-					return true;
+				for (MyCustomer c:customers) {
+					if (c.state == CustomerState.NEEDS_REORDER) {
+						doRequestReorder(c);
+						return true;
+					}
 				}
-			}
-			//Gives food to customer if the order is ready
-			for(MyCustomer c:customers){
-				if(c.state == CustomerState.ORDER_READY) {
-					giveFoodToCustomer(c);
-					return true;
+				//Gives food to customer if the order is ready
+				for(MyCustomer c:customers){
+					if(c.state == CustomerState.ORDER_READY) {
+						giveFoodToCustomer(c);
+						return true;
+					}
 				}
-			}
-			//Clears the table if the customer has left
-			for(MyCustomer c:customers){
-				if(c.state == CustomerState.IS_DONE) {
-					clearTable(c);
-					return true;
+				//Clears the table if the customer has left
+				for(MyCustomer c:customers){
+					if(c.state == CustomerState.IS_DONE) {
+						clearTable(c);
+						return true;
+					}
 				}
-			}
 
-			//Seats the customer if they need it
-			for(MyCustomer c:customers){
-				if(c.state == CustomerState.NEED_SEATED){
-					seatCustomer(c);
-					return true;
+				//Seats the customer if they need it
+				for(MyCustomer c:customers){
+					if(c.state == CustomerState.NEED_SEATED){
+						seatCustomer(c);
+						return true;
+					}
 				}
-			}
 
-			//Gives all pending orders to the cook
-			for(MyCustomer c:customers){
-				if(c.state == CustomerState.ORDER_PENDING){
-					giveOrderToCook(c);
-					return true;
+				//Gives all pending orders to the cook
+				for(MyCustomer c:customers){
+					if(c.state == CustomerState.ORDER_PENDING){
+						giveOrderToCook(c);
+						return true;
+					}
 				}
-			}
 
-			//Takes new orders for customers that are ready
-			for(MyCustomer c:customers){
-				//print("testing for ready to order"+c.state);
-				if(c.state == CustomerState.READY_TO_ORDER) {
-					takeOrder(c);
-					return true;
+				//Takes new orders for customers that are ready
+				for(MyCustomer c:customers){
+					//print("testing for ready to order"+c.state);
+					if(c.state == CustomerState.READY_TO_ORDER) {
+						takeOrder(c);
+						return true;
+					}
+				}	 
+
+				//Gets bills for customers that are done eating
+				for(MyCustomer c:customers) {
+					if (c.state == CustomerState.PAYING) {
+						getBill(c);
+						return true;
+					}
 				}
-			}	 
 
-			//Gets bills for customers that are done eating
-			for(MyCustomer c:customers) {
-				if (c.state == CustomerState.PAYING) {
-					getBill(c);
-					return true;
-				}
-			}
-
-			//Gives bill to customer
-			for(MyCustomer c:customers) {
-				if (c.state == CustomerState.BILL_ARRIVED) {
-					giveBill(c);
-					return true;
+				//Gives bill to customer
+				for(MyCustomer c:customers) {
+					if (c.state == CustomerState.BILL_ARRIVED) {
+						giveBill(c);
+						return true;
+					}
 				}
 			}
 		}
@@ -436,7 +460,7 @@ public class WaiterAgent extends Agent {
 				tables[customer.tableNum].foodY(),
 				new Color(255, 255, 255), customer.choice.substring(0,2)+"?");
 	}
-	
+
 	private void doChangeOrder(MyCustomer customer) {
 		customer.state = CustomerState.NO_ACTION;
 		print(customer.cmr + " has successfully changed his order");
@@ -507,7 +531,7 @@ public class WaiterAgent extends Agent {
 		customer.cmr.msgOrderAgain(customer.menu);
 		customer.state = CustomerState.NO_ACTION;
 	}
-	
+
 	/** Requests cook to change the order of the customer
 	 * @param customer
 	 */

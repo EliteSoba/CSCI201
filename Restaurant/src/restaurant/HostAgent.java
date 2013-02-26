@@ -109,11 +109,13 @@ public class HostAgent extends Agent {
 	 */
 	public void msgIWantABreak(WaiterAgent waiter) {
 		print(waiter + " wants a break");
-		for (MyWaiter w:waiters) {
-			if (w.wtr.equals(waiter)) {
-				w.state = WaiterState.breakrequested;
-				stateChanged();
-				return;
+		synchronized (waiters) {
+			for (MyWaiter w:waiters) {
+				if (w.wtr.equals(waiter)) {
+					w.state = WaiterState.breakrequested;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -123,22 +125,26 @@ public class HostAgent extends Agent {
 	 */
 	public void ImOnBreakNow(WaiterAgent waiter) {
 		print(waiter + " is now on break");
-		for (MyWaiter w:waiters) {
-			if (w.wtr.equals(waiter)) {
-				w.state = WaiterState.onbreak;
-				stateChanged();
-				return;
+		synchronized (waiters) {
+			for (MyWaiter w:waiters) {
+				if (w.wtr.equals(waiter)) {
+					w.state = WaiterState.onbreak;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
 
 	public void ImOffBreak(WaiterAgent waiter) {
 		print(waiter + " is now off break");
-		for (MyWaiter w:waiters) {
-			if (w.wtr.equals(waiter)) {
-				w.state = WaiterState.working;
-				stateChanged();
-				return;
+		synchronized (waiters) {
+			for (MyWaiter w:waiters) {
+				if (w.wtr.equals(waiter)) {
+					w.state = WaiterState.working;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -148,13 +154,14 @@ public class HostAgent extends Agent {
 	 */
 	public void msgIHateWaiting(CustomerAgent customer) {
 		print(customer + " hates waiting");
-		//TODO: Synchronized error here
-		for (MyCustomer c:waitList) {
-			if (c.customer.equals(customer)) {
-				//waitList.remove(c);
-				c.state = CustomerStatus.hatesWaiting;
-				stateChanged();
-				return;
+		synchronized (waitList) {
+			for (MyCustomer c:waitList) {
+				if (c.customer.equals(customer)) {
+					//waitList.remove(c);
+					c.state = CustomerStatus.hatesWaiting;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -200,10 +207,12 @@ public class HostAgent extends Agent {
 			}
 		}
 
-		for (MyWaiter w:waiters) {
-			if (w.state == WaiterState.breakrequested) {
-				DoManageBreak(w);
-				return true;
+		synchronized (waiters) {
+			for (MyWaiter w:waiters) {
+				if (w.state == WaiterState.breakrequested) {
+					DoManageBreak(w);
+					return true;
+				}
 			}
 		}
 

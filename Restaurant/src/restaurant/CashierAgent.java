@@ -11,7 +11,7 @@ import java.util.*;
  *  Interacts with customers and waiters.
  */
 public class CashierAgent extends Agent {
-	
+
 	Menu menu = new Menu();
 	/** Private class for storing customer data*/
 	private class MyCustomer {
@@ -77,10 +77,12 @@ public class CashierAgent extends Agent {
 
 	public void msgTakeMyMoney(CustomerAgent customer, double money) {
 		print(customer + " has paid!");
-		for (MyCustomer c:customers) {
-			if (c.customer.equals(customer)) {
-				c.state = CustomerState.awaitingChange;
-				c.money = money;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.customer.equals(customer)) {
+					c.state = CustomerState.awaitingChange;
+					c.money = money;
+				}
 			}
 		}
 		stateChanged();
@@ -88,9 +90,11 @@ public class CashierAgent extends Agent {
 
 	public void msgICantPay(CustomerAgent customer) {
 		print(customer + " can't pay!");
-		for (MyCustomer c:customers) {
-			if (c.customer.equals(customer)) {
-				c.state = CustomerState.poor;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.customer.equals(customer)) {
+					c.state = CustomerState.poor;
+				}
 			}
 		}
 		stateChanged();
@@ -105,30 +109,34 @@ public class CashierAgent extends Agent {
 	/** Scheduler.  Determine what action is called for, and do it. */
 	protected boolean pickAndExecuteAnAction() {
 
-		for (MyCustomer c:customers) {
-			if (c.state == CustomerState.paying) {
-				DoCalculateBill(c);
-				return true;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.paying) {
+					DoCalculateBill(c);
+					return true;
+				}
+			}
+
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.awaitingChange) {
+					DoCalculateChange(c);
+					return true;
+				}
+			}
+
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.poor) {
+					DoTakeKidney(c);
+					return true;
+				}
 			}
 		}
 
-		for (MyCustomer c:customers) {
-			if (c.state == CustomerState.awaitingChange) {
-				DoCalculateChange(c);
+		synchronized (cookOrders) {
+			for (Order o:cookOrders) {
+				DoProcessOrder(o);
 				return true;
 			}
-		}
-
-		for (MyCustomer c:customers) {
-			if (c.state == CustomerState.poor) {
-				DoTakeKidney(c);
-				return true;
-			}
-		}
-
-		for (Order o:cookOrders) {
-			DoProcessOrder(o);
-			return true;
 		}
 
 		//we have tried all our rules and found

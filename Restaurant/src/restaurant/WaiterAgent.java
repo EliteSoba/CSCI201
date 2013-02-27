@@ -381,12 +381,13 @@ public class WaiterAgent extends Agent {
 				}
 
 				//Gives all pending orders to the cook
-				for(MyCustomer c:customers){
+				//Unneeded here because of multistep
+				/*for(MyCustomer c:customers){
 					if(c.state == CustomerState.ORDER_PENDING){
 						giveOrderToCook(c);
 						return true;
 					}
-				}
+				}*/
 
 				//Takes new orders for customers that are ready
 				for(MyCustomer c:customers){

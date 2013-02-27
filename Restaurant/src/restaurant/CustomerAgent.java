@@ -93,7 +93,7 @@ public class CustomerAgent extends Agent {
 	/** Waiter sends this message to take the customer's order */
 	public void msgWhatWouldYouLike(){
 		//events.add(AgentEvent.waiterToTakeOrder);
-		orderWait.release();
+		orderWait.release(); 
 		stateChanged(); 
 	}
 

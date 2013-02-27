@@ -1,12 +1,21 @@
 package restaurant;
 import java.awt.Color;
-import restaurant.gui.RestaurantGui;
-import restaurant.layoutGUI.*;
-import agent.Agent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import astar.*;
-import java.util.*;
+import java.util.concurrent.Semaphore;
+
+import restaurant.layoutGUI.Food;
+import restaurant.layoutGUI.GuiCustomer;
+import restaurant.layoutGUI.GuiWaiter;
+import restaurant.layoutGUI.Restaurant;
+import restaurant.layoutGUI.Table;
+import agent.Agent;
+import astar.AStarNode;
+import astar.AStarTraversal;
+import astar.Position;
 
 /** Restaurant Waiter Agent.
  * Sits customers at assigned tables and takes their orders.
@@ -27,6 +36,8 @@ public class WaiterAgent extends Agent {
 
 	Timer timer = new Timer();
 
+	private Semaphore orderWait = new Semaphore(0, true);
+	
 	/** Private class to hold information for each customer.
 	 * Contains a reference to the customer, his choice, 
 	 * table number, and state */
@@ -123,16 +134,17 @@ public class WaiterAgent extends Agent {
 	 * @param customer customer who has decided their choice
 	 * @param choice the food item that the customer chose */
 	public void msgHereIsMyChoice(CustomerAgent customer, String choice){
-		synchronized (customers) {
+		//synchronized (customers) { //No synchronized here because the waiter is waiting in a synchronized block
 			for(MyCustomer c:customers){
 				if(c.cmr.equals(customer)){
 					c.choice = choice;
 					c.state = CustomerState.ORDER_PENDING;
+					orderWait.release();
 					stateChanged();
 					return;
 				}
 			}
-		}
+		//}
 	}
 
 	/** Cook sends this when the order is ready.
@@ -435,6 +447,12 @@ public class WaiterAgent extends Agent {
 		DoTakeOrder(customer); //animation
 		customer.state = CustomerState.NO_ACTION;
 		customer.cmr.msgWhatWouldYouLike();
+		try {
+			orderWait.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		stateChanged();
 	}
 

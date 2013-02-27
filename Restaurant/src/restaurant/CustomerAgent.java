@@ -189,7 +189,13 @@ public class CustomerAgent extends Agent {
 		}
 		if (state == AgentState.WaiterCalled) {
 			if (event == AgentEvent.waiterToTakeOrder)	{
-				orderFood();
+				print("Telling order (3000 ms)");
+				timer.schedule(new TimerTask() {
+					public void run() {  
+						orderFood();	    
+					}},
+					3000);//how long to wait before running task
+				//orderFood();
 				state = AgentState.WaitingForFood;
 				return true;
 			}

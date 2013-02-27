@@ -138,9 +138,9 @@ public class WaiterAgent extends Agent {
 			for(MyCustomer c:customers){
 				if(c.cmr.equals(customer)){
 					c.choice = choice;
-					c.state = CustomerState.ORDER_PENDING;
+					//c.state = CustomerState.ORDER_PENDING;
 					orderWait.release();
-					stateChanged();
+					//stateChanged();
 					return;
 				}
 			}
@@ -453,6 +453,8 @@ public class WaiterAgent extends Agent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//Pseudo-multistep
+		giveOrderToCook(customer);
 		stateChanged();
 	}
 

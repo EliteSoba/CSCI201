@@ -5,6 +5,7 @@ import restaurant.gui.RestaurantGui;
 import restaurant.layoutGUI.*;
 import agent.Agent;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.awt.Color;
 
 /** Restaurant customer agent. 
@@ -30,6 +31,9 @@ public class CustomerAgent extends Agent {
 	Restaurant restaurant;
 	private Menu menu;
 	Timer timer = new Timer();
+
+	private Semaphore orderWait = new Semaphore(0, true);
+	
 	GuiCustomer guiCustomer; //for gui
 	// ** Agent state **
 	private boolean isHungry = false; //hack for gui
@@ -88,7 +92,8 @@ public class CustomerAgent extends Agent {
 	}
 	/** Waiter sends this message to take the customer's order */
 	public void msgWhatWouldYouLike(){
-		events.add(AgentEvent.waiterToTakeOrder);
+		//events.add(AgentEvent.waiterToTakeOrder);
+		orderWait.release();
 		stateChanged(); 
 	}
 
@@ -183,10 +188,10 @@ public class CustomerAgent extends Agent {
 		if (state == AgentState.SeatedWithMenu) {
 			if (event == AgentEvent.decidedChoice)	{
 				callWaiter();
-				state = AgentState.WaiterCalled;
+				state = AgentState.WaitingForFood;
 				return true;
 			}
-		}
+		}/*Unneeded with multistep
 		if (state == AgentState.WaiterCalled) {
 			if (event == AgentEvent.waiterToTakeOrder)	{
 				print("Telling order (3000 ms)");
@@ -199,7 +204,7 @@ public class CustomerAgent extends Agent {
 				state = AgentState.WaitingForFood;
 				return true;
 			}
-		}
+		}*/
 		if (state == AgentState.WaitingForFood) {
 			if (event == AgentEvent.foodDelivered)	{
 				eatFood();
@@ -270,6 +275,18 @@ public class CustomerAgent extends Agent {
 	private void callWaiter(){
 		print("I decided!");
 		waiter.msgImReadyToOrder(this);
+		try {
+			orderWait.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		print("Telling order (3000 ms)");
+		timer.schedule(new TimerTask() {
+			public void run() {  
+				orderFood();	    
+			}},
+			3000);
 		stateChanged();
 	}
 

@@ -55,6 +55,13 @@ public class RevolvingStand extends Object {
       return data;
   }
   
+  /** This is a minor hack, but it should work in this case because we should not be concerned about the case when we read the list as empty
+   * and someone adds to the list while we're reading this, as we can pick this up on the next cook scheduler cycle
+   * and the reverse will never happen because there is only one cook.*/
+  public boolean isEmpty() {
+	  return count == 0;
+  }
+  
   private void insert_item(RevolvingOrder data){
       theData.addElement(data);
       System.out.println("Added order to revolving stand: " + data.name);

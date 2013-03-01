@@ -23,6 +23,7 @@ public class CookAgent extends Agent {
 	private boolean needsRestock = false;
 	private boolean isReordering = false; //To ensure orders are requested one at a time. If I need one more reordering boolean, I'll change it to an enum, but for now, I believe this is sufficient
 
+	public RevolvingStand stand;
 	private boolean reordering = true; //To determine if the cook can reorder from markets or not. A hack for nonnormative demonstrations
 	Set<MyMarket> markets = Collections.synchronizedSet(new HashSet<MyMarket>());
 	CashierAgent cashier;
@@ -42,6 +43,7 @@ public class CookAgent extends Agent {
 
 		this.name = name;
 		this.restaurant = restaurant;
+		stand = null;
 		//Create the restaurant's inventory.
 		inventory.put("Steak",new FoodData("Steak", 5));
 		inventory.put("Chicken",new FoodData("Chicken", 4));
@@ -193,6 +195,12 @@ public class CookAgent extends Agent {
 		if (!changedOrders.isEmpty()) {
 			doCheckReorder(changedOrders.remove(0));
 		}
+		
+		//A minor hack for the revolving stand so I can reuse methods
+		if (!stand.isEmpty()) {
+			RevolvingOrder temp = stand.remove();
+			orders.add(0, new Order(temp.waiter, temp.tableNum, temp.name));
+		}
 
 		synchronized (markets) {
 			for (MyMarket m:markets) {
@@ -254,7 +262,13 @@ public class CookAgent extends Agent {
 
 		//we have tried all our rules (in this case only one) and found
 		//nothing to do. So return false to main loop of abstract agent
-		//and wait.
+		//and wake ourselves in 3 seconds to check for new orders.
+		timer.schedule(new TimerTask(){
+			public void run(){//this routine is like a message reception    
+				stateChanged();
+			}
+		}, 3000);
+		//print("Nothing to do, taking a 3 second nap");
 		return false;
 	}
 
@@ -420,6 +434,9 @@ public class CookAgent extends Agent {
 	/** Another hack, this time to decide if the cook can reorder from the market to demonstrate nonnormatives*/
 	public void setReordering(boolean reordering) {
 		this.reordering = reordering;
+	}
+	public void setStand(RevolvingStand stand) {
+		this.stand = stand;
 	}
 }
 

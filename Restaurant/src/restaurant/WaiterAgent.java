@@ -25,7 +25,7 @@ import astar.Position;
 public class WaiterAgent extends Agent {
 
 	//State variables for Waiter
-	private BreakState breakstate = BreakState.working;
+	protected BreakState breakstate = BreakState.working;
 
 	enum BreakState {working, breakRequested, breakPending, onBreak, broke};
 
@@ -36,12 +36,12 @@ public class WaiterAgent extends Agent {
 
 	Timer timer = new Timer();
 
-	private Semaphore orderWait = new Semaphore(0, true);
+	protected Semaphore orderWait = new Semaphore(0, true);
 	
 	/** Private class to hold information for each customer.
 	 * Contains a reference to the customer, his choice, 
 	 * table number, and state */
-	private class MyCustomer {
+	protected class MyCustomer {
 		public CustomerState state;
 		public CustomerAgent cmr;
 		public String choice;
@@ -62,15 +62,15 @@ public class WaiterAgent extends Agent {
 	}
 
 	//Name of waiter
-	private String name;
+	protected String name;
 	double tipMoney = 0;
 
 	//All the customers that this waiter is serving
 	private List<MyCustomer> customers = Collections.synchronizedList(new ArrayList<MyCustomer>());
 
-	private HostAgent host;
-	private CookAgent cook;
-	private CashierAgent cashier;
+	protected HostAgent host;
+	protected CookAgent cook;
+	protected CashierAgent cashier;
 
 	//Animation Variables
 	AStarTraversal aStar;
@@ -461,7 +461,7 @@ public class WaiterAgent extends Agent {
 
 	/** Gives any pending orders to the cook 
 	 * @param customer customer that needs food cooked */
-	private void giveOrderToCook(MyCustomer customer) {
+	protected void giveOrderToCook(MyCustomer customer) {
 		//In our animation the waiter does not move to the cook in
 		//order to give him an order. We assume some sort of electronic
 		//method implemented as our message to the cook. So there is no

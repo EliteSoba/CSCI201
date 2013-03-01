@@ -37,6 +37,7 @@ public class RestaurantPanel extends JPanel {
 	private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
 	private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
 	private Vector<MarketAgent> markets = new Vector<MarketAgent>();
+	public RevolvingStand orderStand = new RevolvingStand();
 
 	private JPanel restLabel = new JPanel();
 	private ListPanel customerPanel = new ListPanel(this, "Customers");
@@ -176,7 +177,8 @@ public class RestaurantPanel extends JPanel {
 			c.setHungry();
 		} else if(type.equals("Waiters")){
 			AStarTraversal aStarTraversal = new AStarTraversal(grid);
-			WaiterAgent w = new WaiterAgent(name, aStarTraversal, restaurant, tables);
+			WaiterAgent w = new SharedDataWaiterAgent(name, aStarTraversal, restaurant, tables);
+			((SharedDataWaiterAgent)w).setStand(orderStand);
 			w.setHost(host);
 			w.setCook(cook);
 			w.setCashier(cashier);

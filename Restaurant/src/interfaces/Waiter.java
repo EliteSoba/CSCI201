@@ -8,11 +8,11 @@ public interface Waiter {
 	 * @param customer the customer with the bill
 	 * @param bill the bill
 	 */
-	public abstract void msgHereIsBill(CustomerAgent customer, double bill);
+	public abstract void msgHereIsBill(Customer customer, double bill);
 
 	/** Cashier sends this to alert the waiter that the customer left without paying money
 	 * @param customer The customer that left
 	 */
-	public abstract void msgCustomerPaidWithBody(CustomerAgent customer);
+	public abstract void msgCustomerPaidWithBody(Customer customer);
 
 }

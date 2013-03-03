@@ -1,4 +1,5 @@
 package restaurant;
+import interfaces.Customer;
 import interfaces.Waiter;
 
 import java.awt.Color;
@@ -203,7 +204,7 @@ public class WaiterAgent extends Agent implements Waiter{
 	 * @param customer the customer with the bill
 	 * @param bill the bill
 	 */
-	public void msgHereIsBill(CustomerAgent customer, double bill) {
+	public void msgHereIsBill(Customer customer, double bill) {
 		synchronized (customers) {
 			for (MyCustomer c:customers) {
 				if (c.cmr.equals(customer)) {
@@ -254,7 +255,7 @@ public class WaiterAgent extends Agent implements Waiter{
 	/** Cashier sends this to alert the waiter that the customer left without paying money
 	 * @param customer The customer that left
 	 */
-	public void msgCustomerPaidWithBody(CustomerAgent customer) {
+	public void msgCustomerPaidWithBody(Customer customer) {
 		synchronized (customers) {
 			for (MyCustomer c:customers) {
 				if (c.cmr.equals(customer)) {

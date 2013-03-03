@@ -1,7 +1,14 @@
 package restaurant;
 
+import interfaces.Customer;
+import interfaces.Market;
+import interfaces.Waiter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import agent.Agent;
-import java.util.*;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -15,13 +22,13 @@ public class CashierAgent extends Agent {
 	Menu menu = new Menu();
 	/** Private class for storing customer data*/
 	private class MyCustomer {
-		public WaiterAgent waiter; //The waiter in charge of the customer
-		public CustomerAgent customer;
+		public Waiter waiter; //The waiter in charge of the customer
+		public Customer customer;
 		public String choice;
 		public CustomerState state;
 		double money;
 
-		public MyCustomer(WaiterAgent w, CustomerAgent c, String ch) {
+		public MyCustomer(Waiter w, Customer c, String ch) {
 			waiter = w;
 			customer = c;
 			choice = ch;
@@ -44,10 +51,10 @@ public class CashierAgent extends Agent {
 	/** Private class for cook orders*/
 	private class Order {
 		public List<FoodData> food;
-		public MarketAgent market;
+		public Market market;
 		public double cost;
 
-		public Order(List<FoodData> f, MarketAgent m, double c) {
+		public Order(List<FoodData> f, Market m, double c) {
 			food = f;
 			market = m;
 			cost = c;
@@ -69,13 +76,13 @@ public class CashierAgent extends Agent {
 
 	// *** MESSAGES ***
 
-	public void msgCustomerDone(WaiterAgent waiter, CustomerAgent customer, String choice) {
+	public void msgCustomerDone(Waiter waiter, Customer customer, String choice) {
 		print("I acknowledge that " + customer + " has finished eating");
 		customers.add(new MyCustomer(waiter, customer, choice));
 		stateChanged();
 	}
 
-	public void msgTakeMyMoney(CustomerAgent customer, double money) {
+	public void msgTakeMyMoney(Customer customer, double money) {
 		print(customer + " has paid!");
 		synchronized (customers) {
 			for (MyCustomer c:customers) {
@@ -88,7 +95,7 @@ public class CashierAgent extends Agent {
 		stateChanged();
 	}
 
-	public void msgICantPay(CustomerAgent customer) {
+	public void msgICantPay(Customer customer) {
 		print(customer + " can't pay!");
 		synchronized (customers) {
 			for (MyCustomer c:customers) {
@@ -100,7 +107,7 @@ public class CashierAgent extends Agent {
 		stateChanged();
 	}
 
-	public void msgBuyMeFood(List<FoodData> food, double cost, MarketAgent market) {
+	public void msgBuyMeFood(List<FoodData> food, double cost, Market market) {
 		print("cook wants food!");
 		cookOrders.add(new Order(food, market, cost));
 		stateChanged();

@@ -1,9 +1,16 @@
 package restaurant;
 
-import agent.Agent;
-import java.util.*;
+import interfaces.Market;
 
-import restaurant.CookAgent.Status;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import agent.Agent;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -12,7 +19,7 @@ import restaurant.CookAgent.Status;
  *  keeps a list of waiting customers.
  *  Interacts with customers and waiters.
  */
-public class MarketAgent extends Agent {
+public class MarketAgent extends Agent implements Market{
 
 	/** Private class to hold cook information and state */
 	private class MyCook {

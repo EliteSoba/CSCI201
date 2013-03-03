@@ -1,19 +1,25 @@
 package restaurant;
 
-import restaurant.WaiterAgent.CustomerState;
-import restaurant.gui.RestaurantGui;
-import restaurant.layoutGUI.*;
-import agent.Agent;
-import java.util.*;
-import java.util.concurrent.Semaphore;
+import interfaces.Customer;
+
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+
+import restaurant.gui.RestaurantGui;
+import restaurant.layoutGUI.GuiCustomer;
+import restaurant.layoutGUI.Restaurant;
+import agent.Agent;
 
 /** Restaurant customer agent. 
  * Comes to the restaurant when he/she becomes hungry.
  * Randomly chooses a menu item and simulates eating 
  * when the food arrives. 
  * Interacts with a waiter only */
-public class CustomerAgent extends Agent {
+public class CustomerAgent extends Agent implements Customer{
 	private String name;
 	private int hungerLevel = 5;  // Determines length of meal
 	double money = 50;

@@ -1,4 +1,6 @@
 package restaurant;
+import interfaces.Waiter;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +24,7 @@ import astar.Position;
  * Takes the orders to the cook and then returns them 
  * when the food is done.  Cleans up the tables after the customers leave.
  * Interacts with customers, host, and cook */
-public class WaiterAgent extends Agent {
+public class WaiterAgent extends Agent implements Waiter{
 
 	//State variables for Waiter
 	protected BreakState breakstate = BreakState.working;

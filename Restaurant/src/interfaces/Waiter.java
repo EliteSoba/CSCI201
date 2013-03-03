@@ -15,4 +15,6 @@ public interface Waiter {
 	 */
 	public abstract void msgCustomerPaidWithBody(Customer customer);
 
+	public abstract String getName();
+
 }

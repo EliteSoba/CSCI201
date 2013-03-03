@@ -19,9 +19,9 @@ import agent.Agent;
  */
 public class CashierAgent extends Agent {
 
-	Menu menu = new Menu();
+	public Menu menu = new Menu();
 	/** Private class for storing customer data*/
-	private class MyCustomer {
+	public class MyCustomer {
 		public Waiter waiter; //The waiter in charge of the customer
 		public Customer customer;
 		public String choice;
@@ -38,15 +38,15 @@ public class CashierAgent extends Agent {
 	}
 
 	//List of customers
-	List<MyCustomer> customers;
-	enum CustomerState {paying, paid, awaitingChange, poor};
+	public List<MyCustomer> customers;
+	public enum CustomerState {paying, paid, awaitingChange, poor};
 
 	//number of kidneys taken from customers
-	int kidneys;
+	public int kidneys;
 	//Name of the Cashier
 	private String name;
 	//Initial funds of restaurant
-	int funds;
+	public int funds;
 
 	/** Private class for cook orders*/
 	private class Order {
@@ -61,7 +61,7 @@ public class CashierAgent extends Agent {
 		}
 	}
 
-	List<Order> cookOrders;
+	public List<Order> cookOrders;
 
 	/** Constructor for CashierAgent class 
 	 * @param name name of the market */
@@ -114,7 +114,7 @@ public class CashierAgent extends Agent {
 	}
 
 	/** Scheduler.  Determine what action is called for, and do it. */
-	protected boolean pickAndExecuteAnAction() {
+	public boolean pickAndExecuteAnAction() {
 
 		synchronized (customers) {
 			for (MyCustomer c:customers) {
@@ -165,6 +165,7 @@ public class CashierAgent extends Agent {
 	private void DoCalculateChange(MyCustomer customer) {
 		print("Calculating change for " + customer.customer);
 		double change = customer.money - DoCalculatePrice(customer.choice);
+		funds += customer.money - change;
 		customer.customer.msgTakeYourChange(change);
 		customers.remove(customer);
 		stateChanged();
@@ -187,6 +188,7 @@ public class CashierAgent extends Agent {
 		}
 		else {
 			order.market.msgTakeMyMoney(this, order.cost/*, order.food*/); //Food has been removed from the order because passing lists as messages makes me sad
+			funds -= order.cost;
 			cookOrders.remove(order);
 		}
 		stateChanged();

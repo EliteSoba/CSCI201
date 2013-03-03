@@ -14,4 +14,6 @@ public interface Market {
 	 * 
 	 */
 	public abstract void msgTakeMyMoney(CashierAgent cashier, double price);
+
+	public abstract String getName();
 }

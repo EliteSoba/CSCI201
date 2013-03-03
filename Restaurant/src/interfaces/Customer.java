@@ -8,4 +8,6 @@ public interface Customer {
 	 */
 	public abstract void msgTakeYourChange(double change);
 	public abstract void removeKidney();
+
+	public abstract String getName();
 }

@@ -1,7 +1,14 @@
 package restaurant;
 
+import interfaces.Customer;
+import interfaces.Market;
+import interfaces.Waiter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import agent.Agent;
-import java.util.*;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -11,17 +18,17 @@ import java.util.*;
  *  Interacts with customers and waiters.
  */
 public class CashierAgent extends Agent {
-	
-	Menu menu = new Menu();
+
+	public Menu menu = new Menu();
 	/** Private class for storing customer data*/
-	private class MyCustomer {
-		public WaiterAgent waiter; //The waiter in charge of the customer
-		public CustomerAgent customer;
+	public class MyCustomer {
+		public Waiter waiter; //The waiter in charge of the customer
+		public Customer customer;
 		public String choice;
 		public CustomerState state;
 		double money;
 
-		public MyCustomer(WaiterAgent w, CustomerAgent c, String ch) {
+		public MyCustomer(Waiter w, Customer c, String ch) {
 			waiter = w;
 			customer = c;
 			choice = ch;
@@ -31,30 +38,30 @@ public class CashierAgent extends Agent {
 	}
 
 	//List of customers
-	List<MyCustomer> customers;
-	enum CustomerState {paying, paid, awaitingChange, poor};
+	public List<MyCustomer> customers;
+	public enum CustomerState {paying, paid, awaitingChange, poor};
 
 	//number of kidneys taken from customers
-	int kidneys;
+	public int kidneys;
 	//Name of the Cashier
 	private String name;
 	//Initial funds of restaurant
-	int funds;
+	public int funds;
 
 	/** Private class for cook orders*/
 	private class Order {
 		public List<FoodData> food;
-		public MarketAgent market;
+		public Market market;
 		public double cost;
 
-		public Order(List<FoodData> f, MarketAgent m, double c) {
+		public Order(List<FoodData> f, Market m, double c) {
 			food = f;
 			market = m;
 			cost = c;
 		}
 	}
 
-	List<Order> cookOrders;
+	public List<Order> cookOrders;
 
 	/** Constructor for CashierAgent class 
 	 * @param name name of the market */
@@ -69,66 +76,74 @@ public class CashierAgent extends Agent {
 
 	// *** MESSAGES ***
 
-	public void msgCustomerDone(WaiterAgent waiter, CustomerAgent customer, String choice) {
+	public void msgCustomerDone(Waiter waiter, Customer customer, String choice) {
 		print("I acknowledge that " + customer + " has finished eating");
 		customers.add(new MyCustomer(waiter, customer, choice));
 		stateChanged();
 	}
 
-	public void msgTakeMyMoney(CustomerAgent customer, double money) {
+	public void msgTakeMyMoney(Customer customer, double money) {
 		print(customer + " has paid!");
-		for (MyCustomer c:customers) {
-			if (c.customer.equals(customer)) {
-				c.state = CustomerState.awaitingChange;
-				c.money = money;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.customer.equals(customer)) {
+					c.state = CustomerState.awaitingChange;
+					c.money = money;
+				}
 			}
 		}
 		stateChanged();
 	}
 
-	public void msgICantPay(CustomerAgent customer) {
+	public void msgICantPay(Customer customer) {
 		print(customer + " can't pay!");
-		for (MyCustomer c:customers) {
-			if (c.customer.equals(customer)) {
-				c.state = CustomerState.poor;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.customer.equals(customer)) {
+					c.state = CustomerState.poor;
+				}
 			}
 		}
 		stateChanged();
 	}
 
-	public void msgBuyMeFood(List<FoodData> food, double cost, MarketAgent market) {
+	public void msgBuyMeFood(List<FoodData> food, double cost, Market market) {
 		print("cook wants food!");
 		cookOrders.add(new Order(food, market, cost));
 		stateChanged();
 	}
 
 	/** Scheduler.  Determine what action is called for, and do it. */
-	protected boolean pickAndExecuteAnAction() {
+	public boolean pickAndExecuteAnAction() {
 
-		for (MyCustomer c:customers) {
-			if (c.state == CustomerState.paying) {
-				DoCalculateBill(c);
-				return true;
+		synchronized (customers) {
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.paying) {
+					DoCalculateBill(c);
+					return true;
+				}
+			}
+
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.awaitingChange) {
+					DoCalculateChange(c);
+					return true;
+				}
+			}
+
+			for (MyCustomer c:customers) {
+				if (c.state == CustomerState.poor) {
+					DoTakeKidney(c);
+					return true;
+				}
 			}
 		}
 
-		for (MyCustomer c:customers) {
-			if (c.state == CustomerState.awaitingChange) {
-				DoCalculateChange(c);
+		synchronized (cookOrders) {
+			for (Order o:cookOrders) {
+				DoProcessOrder(o);
 				return true;
 			}
-		}
-
-		for (MyCustomer c:customers) {
-			if (c.state == CustomerState.poor) {
-				DoTakeKidney(c);
-				return true;
-			}
-		}
-
-		for (Order o:cookOrders) {
-			DoProcessOrder(o);
-			return true;
 		}
 
 		//we have tried all our rules and found
@@ -150,6 +165,7 @@ public class CashierAgent extends Agent {
 	private void DoCalculateChange(MyCustomer customer) {
 		print("Calculating change for " + customer.customer);
 		double change = customer.money - DoCalculatePrice(customer.choice);
+		funds += customer.money - change;
 		customer.customer.msgTakeYourChange(change);
 		customers.remove(customer);
 		stateChanged();
@@ -172,6 +188,7 @@ public class CashierAgent extends Agent {
 		}
 		else {
 			order.market.msgTakeMyMoney(this, order.cost/*, order.food*/); //Food has been removed from the order because passing lists as messages makes me sad
+			funds -= order.cost;
 			cookOrders.remove(order);
 		}
 		stateChanged();

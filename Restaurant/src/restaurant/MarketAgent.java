@@ -1,9 +1,16 @@
 package restaurant;
 
-import agent.Agent;
-import java.util.*;
+import interfaces.Market;
 
-import restaurant.CookAgent.Status;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import agent.Agent;
 
 
 /** Host agent for restaurant. //TODO: UPDATE THIS DESCRIPTION
@@ -12,7 +19,7 @@ import restaurant.CookAgent.Status;
  *  keeps a list of waiting customers.
  *  Interacts with customers and waiters.
  */
-public class MarketAgent extends Agent {
+public class MarketAgent extends Agent implements Market{
 
 	/** Private class to hold cook information and state */
 	private class MyCook {
@@ -69,16 +76,18 @@ public class MarketAgent extends Agent {
 	 * @param amounts the list of amounts of foods
 	 */
 	public void msgINeedFood(CookAgent cook, List<FoodData> currentOrder) {
-		for (MyCook c:cooks) {
-			if (c.cook.equals(cook)) {
-				c.currentOrder = new ArrayList<FoodData>();
-				print(cook + " needs food!");
-				for (int i = 0; i < currentOrder.size(); i++) {
-					c.currentOrder.add(currentOrder.get(i));
+		synchronized (cooks) {
+			for (MyCook c:cooks) {
+				if (c.cook.equals(cook)) {
+					c.currentOrder = new ArrayList<FoodData>();
+					print(cook + " needs food!");
+					for (int i = 0; i < currentOrder.size(); i++) {
+						c.currentOrder.add(currentOrder.get(i));
+					}
+					c.status = CookStatus.ordering;
+					stateChanged();
+					return;
 				}
-				c.status = CookStatus.ordering;
-				stateChanged();
-				return;
 			}
 		}
 	}
@@ -124,24 +133,25 @@ public class MarketAgent extends Agent {
 	private void DoCalculateOrder() {
 		print("calculating cost of order");
 		boolean outOfStock = true;
-		for (FoodData o:cooks.get(0).currentOrder) {
-			print("searching for " + o.type);
-			if (inventory.get(o.type) == null) {
-				print("couldn't find " + o.type);
-				o.amount = 0;
-			}
-			else if (o.amount > inventory.get(o.type).amount) {
-				print ("found item " + o.type);
-				o.amount = inventory.get(o.type).amount;
-				if (o.amount > 0)
+		synchronized(cooks.get(0).currentOrder) {
+			for (FoodData o:cooks.get(0).currentOrder) {
+				print("searching for " + o.type);
+				if (inventory.get(o.type) == null) {
+					print("couldn't find " + o.type);
+					o.amount = 0;
+				}
+				else if (o.amount > inventory.get(o.type).amount) {
+					print ("found item " + o.type);
+					o.amount = inventory.get(o.type).amount;
+					if (o.amount > 0)
+						outOfStock = false;
+				}
+				else {
+					print ("found item " + o.type);
 					outOfStock = false;
-			}
-			else {
-				print ("found item " + o.type);
-				outOfStock = false;
+				}
 			}
 		}
-
 		if (outOfStock) {//for all orders in cook.currentOrder, amount = 0
 			cooks.get(0).cook.msgIHaveNoFood(this);
 			cooks.get(0).status = CookStatus.nothing;
@@ -189,8 +199,10 @@ public class MarketAgent extends Agent {
 	double DoCalculatePrice(List<FoodData> currentOrder) {
 		double total = 0;
 		Menu menu = new Menu();
-		for (FoodData o:currentOrder)
-			total += (menu.getPrice(o.type)/2)* o.amount;
+		synchronized (currentOrder) {
+			for (FoodData o:currentOrder)
+				total += (menu.getPrice(o.type)/2)* o.amount;
+		}
 		return total;
 	}
 	/** A GUI hack to remove all food from the market*/

@@ -64,6 +64,12 @@ public class ListPanel extends JPanel implements ActionListener{
 				System.out.println(money);
 				addCustomer(name, patient == 0, lawbreaker == 0, money);
 			}
+			else if (type.equalsIgnoreCase("waiters")) {
+				int sharedData = JOptionPane.showConfirmDialog(this, "Do you want this waiter to use the shared data revolving stand?");
+				if (sharedData == 2)
+					return;
+				addWaiter(name, sharedData == 0);
+			}
 			else {
 				addPerson(name);
 			}
@@ -139,6 +145,35 @@ public class ListPanel extends JPanel implements ActionListener{
 		list.add(button);
 		view.add(button);
 		restPanel.addCustomer(name, patient, lawbreaker, money);
+		validate();
+	}
+	public void addWaiter(String name, boolean sharedData) {
+		if(name != null){
+			try {
+				String c = "w";
+				int n = Integer.valueOf( name ).intValue();
+				for (int i=1; i<=n; i++) createWaiter(c+i, sharedData);
+			}
+			catch (NumberFormatException e) {
+				createWaiter(name, sharedData);
+			}
+		}
+	}
+	void createWaiter(String name, boolean sharedData) {
+		//System.out.println("createIt name="+name+"XX"); 
+		JButton button = new JButton(name);
+		button.setBackground(Color.white);
+
+		Dimension paneSize = pane.getSize();
+		Dimension buttonSize = new Dimension(paneSize.width-20, 
+				(int)(paneSize.height/7));
+		button.setPreferredSize(buttonSize);
+		button.setMinimumSize(buttonSize);
+		button.setMaximumSize(buttonSize);
+		button.addActionListener(this);
+		list.add(button);
+		view.add(button);
+		restPanel.addWaiter(name, sharedData);
 		validate();
 	}
 }

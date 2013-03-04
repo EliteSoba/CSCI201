@@ -23,6 +23,7 @@ public class CookAgent extends Agent {
 	private boolean needsRestock = false;
 	private boolean isReordering = false; //To ensure orders are requested one at a time. If I need one more reordering boolean, I'll change it to an enum, but for now, I believe this is sufficient
 
+	public RevolvingStand stand;
 	private boolean reordering = true; //To determine if the cook can reorder from markets or not. A hack for nonnormative demonstrations
 	Set<MyMarket> markets = Collections.synchronizedSet(new HashSet<MyMarket>());
 	CashierAgent cashier;
@@ -42,6 +43,7 @@ public class CookAgent extends Agent {
 
 		this.name = name;
 		this.restaurant = restaurant;
+		stand = null;
 		//Create the restaurant's inventory.
 		inventory.put("Steak",new FoodData("Steak", 5));
 		inventory.put("Chicken",new FoodData("Chicken", 4));
@@ -130,11 +132,13 @@ public class CookAgent extends Agent {
 	 */
 	public void msgIHaveNoFood(MarketAgent market) {
 		print(market + " is out of food!");
-		for (MyMarket m:markets) {
-			if (m.market.equals(market)) {
-				m.status = MarketStatus.deadtome;
-				stateChanged();
-				return;
+		synchronized (markets) {
+			for (MyMarket m:markets) {
+				if (m.market.equals(market)) {
+					m.status = MarketStatus.deadtome;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -146,13 +150,15 @@ public class CookAgent extends Agent {
 	 */
 	public void msgHereIsPrice(MarketAgent market, double price, List<FoodData> curorder) {
 		print(market + " wants my money");
-		for (MyMarket m:markets) {
-			if (m.market.equals(market)) {
-				m.currentOrderCost = price;
-				m.currentOrder = curorder;
-				m.status = MarketStatus.ordering;
-				stateChanged();
-				return;
+		synchronized (markets) {
+			for (MyMarket m:markets) {
+				if (m.market.equals(market)) {
+					m.currentOrderCost = price;
+					m.currentOrder = curorder;
+					m.status = MarketStatus.ordering;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
@@ -164,16 +170,18 @@ public class CookAgent extends Agent {
 	public void msgTakeMyFood(MarketAgent market, List<FoodData> curOrder) {
 		print(market + " is giving me food");
 		isReordering = false;
-		for (MyMarket m:markets) {
-			if (m.market.equals(market)) {
-				m.currentOrder = curOrder;
-				m.status = MarketStatus.paid;
-				stateChanged();
-				return;
+		synchronized (markets) {
+			for (MyMarket m:markets) {
+				if (m.market.equals(market)) {
+					m.currentOrder = curOrder;
+					m.status = MarketStatus.paid;
+					stateChanged();
+					return;
+				}
 			}
 		}
 	}
-	
+
 	public void msgOrderChanged(WaiterAgent waiter, int tableNum, String choice) {
 		changedOrders.add(new Order(waiter, tableNum, choice));
 		stateChanged();
@@ -183,53 +191,63 @@ public class CookAgent extends Agent {
 	/** Scheduler.  Determine what action is called for, and do it. */
 	protected boolean pickAndExecuteAnAction() {
 
-		
+
 		if (!changedOrders.isEmpty()) {
 			doCheckReorder(changedOrders.remove(0));
 		}
 		
-		for (MyMarket m:markets) {
-			if (m.status == MarketStatus.ordering) {
-				DoPurchaseFood(m);
-				return true;
+		//A minor hack for the revolving stand so I can reuse methods
+		if (!stand.isEmpty()) {
+			RevolvingOrder temp = stand.remove();
+			orders.add(0, new Order(temp.waiter, temp.tableNum, temp.name));
+		}
+
+		synchronized (markets) {
+			for (MyMarket m:markets) {
+				if (m.status == MarketStatus.ordering) {
+					DoPurchaseFood(m);
+					return true;
+				}
+			}
+
+			for (MyMarket m:markets) {
+				if (m.status == MarketStatus.paid) {
+					DoStockFood(m);
+					return true;
+				}
 			}
 		}
 
-		for (MyMarket m:markets) {
-			if (m.status == MarketStatus.paid) {
-				DoStockFood(m);
-				return true;
-			}
-		}
-		
 		if (needsRestock && !markets.isEmpty()) {
 			DoOrderFood();
 			return true;
 		}
-		
+
 
 		if (!isReordering && !needsRestock)
-		doCheckStock(); //Nothing stops here, cook just makes a note to himself that he needs to reorder. Happens at all times the cook is awake, because this cook is responsible
+			doCheckStock(); //Nothing stops here, cook just makes a note to himself that he needs to reorder. Happens at all times the cook is awake, because this cook is responsible
 
-		//If there exists an order o whose status is done, place o.
-		for(Order o:orders){
-			if(o.status == Status.done){
-				placeOrder(o);
-				return true;
+		synchronized (orders) {
+			//If there exists an order o whose status is done, place o.
+			for(Order o:orders){
+				if(o.status == Status.done){
+					placeOrder(o);
+					return true;
+				}
 			}
-		}
-		//If there exists an order o whose status is pending, cook o.
-		for(Order o:orders){
-			if(o.status == Status.prepared){
-				cookOrder(o);
-				return true;
+			//If there exists an order o whose status is pending, cook o.
+			for(Order o:orders){
+				if(o.status == Status.prepared){
+					cookOrder(o);
+					return true;
+				}
 			}
-		}
-		
-		for(Order o:orders) {
-			if (o.status == Status.pending) {
-				prepareOrder(o);
-				return true;
+
+			for(Order o:orders) {
+				if (o.status == Status.pending) {
+					prepareOrder(o);
+					return true;
+				}
 			}
 		}
 
@@ -240,11 +258,17 @@ public class CookAgent extends Agent {
 		}
 	}*/
 
-		
+
 
 		//we have tried all our rules (in this case only one) and found
 		//nothing to do. So return false to main loop of abstract agent
-		//and wait.
+		//and wake ourselves in 3 seconds to check for new orders.
+		timer.schedule(new TimerTask(){
+			public void run(){//this routine is like a message reception    
+				stateChanged();
+			}
+		}, 3000);
+		//print("Nothing to do, taking a 3 second nap");
 		return false;
 	}
 
@@ -267,7 +291,7 @@ public class CookAgent extends Agent {
 		order.status = Status.cooking;
 		inventory.get(order.choice).amount -= 1;
 	}
-	
+
 	/** Takes some time to prepare the order so that the customer can change his mind
 	 * @param order
 	 */
@@ -281,7 +305,7 @@ public class CookAgent extends Agent {
 			}
 		}, 3000);
 	}
-	
+
 	/** The cook is always checking his stock.
 	 */
 	private void doCheckStock() {
@@ -340,7 +364,7 @@ public class CookAgent extends Agent {
 			inventory.get(f.type).amount += f.amount;
 		m.status = MarketStatus.available;
 	}
-	
+
 	private void doCheckReorder(Order order) {
 		print("Checking if order is already cooking");
 		for (Order o:orders) {
@@ -397,7 +421,7 @@ public class CookAgent extends Agent {
 		markets.add(new MyMarket(market));
 		stateChanged();
 	}
-	
+
 	/** Another hack, this time to remove inventory*/
 	public void removeFood(String food) {
 		if (!inventory.containsKey(food))
@@ -406,10 +430,13 @@ public class CookAgent extends Agent {
 		print("Removing stock of " + food);
 		stateChanged();
 	}
-	
+
 	/** Another hack, this time to decide if the cook can reorder from the market to demonstrate nonnormatives*/
 	public void setReordering(boolean reordering) {
 		this.reordering = reordering;
+	}
+	public void setStand(RevolvingStand stand) {
+		this.stand = stand;
 	}
 }
 

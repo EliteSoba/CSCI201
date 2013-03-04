@@ -37,6 +37,7 @@ public class RestaurantPanel extends JPanel {
 	private Vector<CustomerAgent> customers = new Vector<CustomerAgent>();
 	private Vector<WaiterAgent> waiters = new Vector<WaiterAgent>();
 	private Vector<MarketAgent> markets = new Vector<MarketAgent>();
+	public RevolvingStand orderStand = new RevolvingStand();
 
 	private JPanel restLabel = new JPanel();
 	private ListPanel customerPanel = new ListPanel(this, "Customers");
@@ -51,6 +52,7 @@ public class RestaurantPanel extends JPanel {
 		this.gui = gui;
 
 		cook.setCashier(cashier);
+		cook.setStand(orderStand);
 
 		//intialize the semaphore grid
 		for (int i=0; i<gridX+1 ; i++)
@@ -207,6 +209,23 @@ public class RestaurantPanel extends JPanel {
 		customers.add(c);
 		c.startThread();
 		c.setHungry();
+	}
+	public void addWaiter(String name, boolean sharedData) {
+		AStarTraversal aStarTraversal = new AStarTraversal(grid);
+		WaiterAgent w;
+		if (sharedData) {
+			w = new SharedDataWaiterAgent(name, aStarTraversal, restaurant, tables);
+			((SharedDataWaiterAgent)w).setStand(orderStand);
+		}
+		else {
+			w = new WaiterAgent(name, aStarTraversal, restaurant, tables);
+		}
+		w.setHost(host);
+		w.setCook(cook);
+		w.setCashier(cashier);
+		host.setWaiter(w);
+		waiters.add(w);
+		w.startThread();
 	}
 
 	public void addTable() {

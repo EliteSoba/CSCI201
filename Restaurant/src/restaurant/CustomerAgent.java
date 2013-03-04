@@ -1,18 +1,25 @@
 package restaurant;
 
-import restaurant.WaiterAgent.CustomerState;
-import restaurant.gui.RestaurantGui;
-import restaurant.layoutGUI.*;
-import agent.Agent;
-import java.util.*;
+import interfaces.Customer;
+
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+
+import restaurant.gui.RestaurantGui;
+import restaurant.layoutGUI.GuiCustomer;
+import restaurant.layoutGUI.Restaurant;
+import agent.Agent;
 
 /** Restaurant customer agent. 
  * Comes to the restaurant when he/she becomes hungry.
  * Randomly chooses a menu item and simulates eating 
  * when the food arrives. 
  * Interacts with a waiter only */
-public class CustomerAgent extends Agent {
+public class CustomerAgent extends Agent implements Customer{
 	private String name;
 	private int hungerLevel = 5;  // Determines length of meal
 	double money = 50;
@@ -30,6 +37,9 @@ public class CustomerAgent extends Agent {
 	Restaurant restaurant;
 	private Menu menu;
 	Timer timer = new Timer();
+
+	private Semaphore orderWait = new Semaphore(0, true);
+	
 	GuiCustomer guiCustomer; //for gui
 	// ** Agent state **
 	private boolean isHungry = false; //hack for gui
@@ -88,7 +98,8 @@ public class CustomerAgent extends Agent {
 	}
 	/** Waiter sends this message to take the customer's order */
 	public void msgWhatWouldYouLike(){
-		events.add(AgentEvent.waiterToTakeOrder);
+		//events.add(AgentEvent.waiterToTakeOrder);
+		orderWait.release(); 
 		stateChanged(); 
 	}
 
@@ -183,17 +194,23 @@ public class CustomerAgent extends Agent {
 		if (state == AgentState.SeatedWithMenu) {
 			if (event == AgentEvent.decidedChoice)	{
 				callWaiter();
-				state = AgentState.WaiterCalled;
-				return true;
-			}
-		}
-		if (state == AgentState.WaiterCalled) {
-			if (event == AgentEvent.waiterToTakeOrder)	{
-				orderFood();
 				state = AgentState.WaitingForFood;
 				return true;
 			}
-		}
+		}/*Unneeded with multistep
+		if (state == AgentState.WaiterCalled) {
+			if (event == AgentEvent.waiterToTakeOrder)	{
+				print("Telling order (3000 ms)");
+				timer.schedule(new TimerTask() {
+					public void run() {  
+						orderFood();	    
+					}},
+					3000);//how long to wait before running task
+				//orderFood();
+				state = AgentState.WaitingForFood;
+				return true;
+			}
+		}*/
 		if (state == AgentState.WaitingForFood) {
 			if (event == AgentEvent.foodDelivered)	{
 				eatFood();
@@ -264,6 +281,18 @@ public class CustomerAgent extends Agent {
 	private void callWaiter(){
 		print("I decided!");
 		waiter.msgImReadyToOrder(this);
+		try {
+			orderWait.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		print("Telling order (3000 ms)");
+		timer.schedule(new TimerTask() {
+			public void run() {  
+				orderFood();	    
+			}},
+			3000);
 		stateChanged();
 	}
 
